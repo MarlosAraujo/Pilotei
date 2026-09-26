@@ -1,0 +1,214 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "AdicionarDia.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Adicionar dia (manual)",
+      "w": 390,
+      "x": 2350,
+      "y": 1264
+    },
+    "AdicionarLancamento.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Adicionar lançamento",
+      "w": 390,
+      "x": 2820,
+      "y": 1264
+    },
+    "Assinatura.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Assinatura",
+      "w": 390,
+      "x": 940,
+      "y": 2528
+    },
+    "BoasVindas.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Boas-vindas",
+      "w": 390,
+      "x": 470,
+      "y": 0
+    },
+    "Configuracoes.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Configurações",
+      "w": 390,
+      "x": 0,
+      "y": 2528
+    },
+    "CriarConta.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Criar conta",
+      "w": 390,
+      "x": 940,
+      "y": 0
+    },
+    "Custos.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Custos fixos",
+      "w": 390,
+      "x": 470,
+      "y": 3792
+    },
+    "Dashboard.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Dashboard gerencial",
+      "w": 390,
+      "x": 470,
+      "y": 1264
+    },
+    "DashboardVazio.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Dashboard — primeiro acesso",
+      "w": 390,
+      "x": 0,
+      "y": 1264
+    },
+    "Entrar.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Entrar",
+      "w": 390,
+      "x": 1410,
+      "y": 0
+    },
+    "Financeiro.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Financeiro",
+      "w": 390,
+      "x": 940,
+      "y": 1264
+    },
+    "ImportarCSV.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Importar relatório (PDF/CSV)",
+      "w": 390,
+      "x": 1880,
+      "y": 1264
+    },
+    "Main.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Abertura",
+      "w": 390,
+      "x": 0,
+      "y": 0
+    },
+    "Metas.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Suas metas",
+      "w": 390,
+      "x": 940,
+      "y": 3792
+    },
+    "Perfil.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Perfil",
+      "w": 390,
+      "x": 470,
+      "y": 2528
+    },
+    "Plataformas.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Importar ganhos",
+      "w": 390,
+      "x": 1410,
+      "y": 1264
+    },
+    "SeuCusto.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Seu custo estimado",
+      "w": 390,
+      "x": 0,
+      "y": 3792
+    },
+    "Veiculo.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Seu veículo",
+      "w": 390,
+      "x": 1410,
+      "y": 3792
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-09-24T12:03:39.532Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "t1": {
+      "kind": "title1",
+      "maxW": 1800,
+      "text": "1. Acesso",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "t2": {
+      "kind": "title1",
+      "maxW": 1800,
+      "text": "2. Uso diário",
+      "w": 240,
+      "x": 0,
+      "y": 964
+    },
+    "t3": {
+      "kind": "title1",
+      "maxW": 1800,
+      "text": "3. Configurações e conta",
+      "w": 240,
+      "x": 0,
+      "y": 2228
+    },
+    "t4": {
+      "kind": "title1",
+      "maxW": 1800,
+      "text": "4. Detalhes das configurações",
+      "w": 240,
+      "x": 0,
+      "y": 3492
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "BoasVindas.dc.html",
+    "CriarConta.dc.html",
+    "Entrar.dc.html",
+    "DashboardVazio.dc.html",
+    "Dashboard.dc.html",
+    "Financeiro.dc.html",
+    "Plataformas.dc.html",
+    "ImportarCSV.dc.html",
+    "AdicionarDia.dc.html",
+    "AdicionarLancamento.dc.html",
+    "Configuracoes.dc.html",
+    "Perfil.dc.html",
+    "Assinatura.dc.html",
+    "SeuCusto.dc.html",
+    "Custos.dc.html",
+    "Metas.dc.html",
+    "Veiculo.dc.html"
+  ],
+  "pages": [],
+  "title": "Pilotei — Telas do app"
+}
