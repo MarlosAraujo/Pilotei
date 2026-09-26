@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pilotei — Dashboard gerencial</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.dk{--bg:#0B1411;--sf:#12201C;--sf2:#182B26;--tx:#EEF8F4;--mu:#93A8A0;--ln:#243A33;--br:#19D9A0;--brs:rgba(25,217,160,.14);--brx:#19D9A0;--wa:#F5B544;--was:rgba(245,181,68,.15)}
+.lt{--bg:#F4F7F6;--sf:#FFFFFF;--sf2:#EAF2EF;--tx:#0F1E1A;--mu:#56665F;--ln:#D9E3DF;--br:#00C896;--brs:#DDF5EC;--brx:#00755A;--wa:#9A6400;--was:#FCEFD6}
+.scr{width:390px;height:844px;box-sizing:border-box;background:var(--bg);color:var(--tx);font-family:Inter,system-ui,sans-serif;display:flex;flex-direction:column;padding:28px 20px 24px;gap:16px;overflow:hidden}
+h1{margin:0;font-size:28px;line-height:1.12;letter-spacing:-.8px;font-weight:800}
+h2{margin:0;font-size:17px;font-weight:700}
+p{margin:0;font-size:15px;line-height:1.45}
+.mu{color:var(--mu)}.gt{color:var(--brx)}.sm{font-size:13px}.xs{font-size:12px}
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px;border-radius:14px;background:var(--br);color:#05241B;font-weight:700;font-size:16px;text-decoration:none;border:0;font-family:inherit}
+.btn2{display:flex;align-items:center;justify-content:center;gap:10px;min-height:52px;border-radius:14px;background:transparent;border:1px solid var(--ln);color:var(--tx);font-weight:600;font-size:15px;text-decoration:none;font-family:inherit}
+.lnk{color:var(--brx);font-weight:600;font-size:14px;text-decoration:none;text-align:center}
+.fld{display:flex;flex-direction:column;gap:6px}
+label{font-size:13px;font-weight:600;color:var(--mu)}
+input{height:48px;box-sizing:border-box;border-radius:12px;border:1px solid var(--ln);background:var(--sf);color:var(--tx);padding:0 14px;font-family:inherit;font-size:16px;width:100%}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:10px 14px;border-radius:999px;border:1px solid var(--ln);font-size:14px;font-weight:600;background:var(--sf);color:var(--tx);font-family:inherit}
+.on{background:var(--brs);border-color:var(--br);color:var(--brx)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:14px}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;background:var(--brs);color:var(--brx)}
+.warn{background:var(--was);color:var(--wa)}
+.bar{height:6px;border-radius:6px;background:var(--sf2);display:flex}.bar div{height:6px;border-radius:6px;background:var(--br)}
+.sp{flex-grow:1}
+.hint{font-size:12px;color:var(--mu);line-height:1.4}
+.nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:1px solid var(--ln);margin:0 -20px -24px;padding:10px 4px 14px;background:var(--sf)}
+.nav span{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--mu)}
+.nav .a{color:var(--brx)}
+.top{display:flex;align-items:center;gap:12px}
+.back{width:44px;height:44px;border-radius:12px;border:1px solid var(--ln);background:var(--sf);color:var(--tx);display:grid;place-items:center;text-decoration:none}
+.big{font-size:44px;font-weight:800;letter-spacing:-1.6px;line-height:1}
+.ico{width:40px;height:40px;border-radius:12px;background:var(--brs);color:var(--brx);display:grid;place-items:center;flex-shrink:0}
+.sw{width:52px;height:32px;border-radius:16px;background:var(--sf2);border:1px solid var(--ln);display:flex;align-items:center;padding:3px;box-sizing:border-box;flex-shrink:0;font-family:inherit}
+.sw i{width:24px;height:24px;border-radius:12px;background:var(--mu);display:block}
+.sw.ligado{background:var(--br);border-color:var(--br);justify-content:flex-end}.sw.ligado i{background:#05241B}
+.li{display:flex;align-items:center;gap:12px;min-height:52px;padding:4px 0;text-decoration:none;color:var(--tx);border-bottom:1px solid var(--ln);font-size:15px}
+.li:last-child{border-bottom:0}.li .v{color:var(--mu);font-size:14px;margin-left:auto;text-align:right}
+.sec{font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--mu);margin-top:4px}
+.ib{width:44px;height:44px;border-radius:12px;border:1px solid var(--ln);background:var(--sf);color:var(--tx);display:grid;place-items:center;text-decoration:none}
+.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:var(--sf2);border-radius:12px;padding:4px;gap:4px}
+.seg span{text-align:center;padding:8px 0;border-radius:9px;font-size:13px;font-weight:600;color:var(--mu)}.seg .a{background:var(--sf);color:var(--tx)}
+.kpi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.k{background:var(--sf);border:1px solid var(--ln);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:2px}
+.k b{font-size:19px}.scroll{overflow:hidden;display:flex;flex-direction:column;gap:14px;flex-grow:1;min-height:0}
+.avatar{width:72px;height:72px;border-radius:36px;background:var(--brs);color:var(--brx);display:grid;place-items:center;font-size:26px;font-weight:800}
+.ride{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--ln);font-size:14px}
+.cb{width:22px;height:22px;border-radius:6px;background:var(--br);color:#05241B;display:grid;place-items:center;flex-shrink:0}
+
+</style>
+
+<style>html{background:#555}body{display:flex;justify-content:center;padding:24px 0}</style>
+</head>
+<body>
+
+<div class="scr dk">
+<div class="row"><div class="top"><div style="width:36px;height:36px;border-radius:10px;background:var(--br);color:#05241B;display:grid;place-items:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 005 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></div><div style="font-size:22px;font-weight:800;letter-spacing:-.8px">Pilo<span class="gt">tei</span></div></div><div class="top" style="gap:8px"><a class="ib" href="Perfil.html" aria-label="Perfil"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg></a><a class="ib" href="Configuracoes.html" aria-label="Configurações"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg></a></div></div>
+<div class="seg"><span class="a">Hoje</span><span>Semana</span><span>Mês</span></div>
+<div class="card" style="gap:6px"><div class="row"><span class="sm mu">Resultado econômico estimado</span><span class="tag warn">Estimado</span></div>
+<div class="big gt">R$ 206,60</div>
+<div class="sm mu">R$ 402,60 faturados − R$ 196,00 de custo do veículo (200 km × R$ 0,98)</div></div>
+<div class="kpi">
+<div class="k"><span class="xs mu">Ganho real/hora</span><b>R$ 27,55</b><span class="xs mu">sobre 7h30 online</span></div>
+<div class="k"><span class="xs mu">Faturamento/km</span><b>R$ 2,01</b><span class="xs mu">meta R$ 2,00</span></div></div>
+<div class="card" style="gap:2px"><div class="row"><h2>Ganhos por plataforma</h2><span class="tag" style="background:var(--sf2);color:var(--mu)">Hoje</span></div>
+<div class="row" style="padding:6px 0"><div class="top"><div><div style="font-weight:600">Uber</div><div class="xs mu">11 corridas · via relatório PDF</div></div></div><b>R$ 218,40</b></div><div class="row" style="padding:6px 0"><div class="top"><div><div style="font-weight:600">99</div><div class="xs mu">6 corridas · 99Pop · manual</div></div></div><b>R$ 104,20</b></div><div class="row" style="padding:6px 0"><div class="top"><div><div style="font-weight:600">Particulares</div><div class="xs mu">2 corridas · manual</div></div></div><b>R$ 80,00</b></div>
+<div class="row" style="border-top:1px solid var(--ln);padding-top:8px"><span style="font-weight:700">Total</span><b style="font-size:18px">R$ 402,60</b></div></div>
+<div class="card" style="flex-direction:row;align-items:center;padding:12px"><div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></svg></div><div style="flex-grow:1"><div class="sm" style="font-weight:600">Troca de óleo em 9.344 km</div><div class="xs mu">Previsto para 139.000 km</div></div></div>
+<div class="sp"></div><nav class="nav" style="grid-template-columns:repeat(3,minmax(0,1fr))"><a href="Dashboard.html" style="text-decoration:none"><span class="a"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>Início</span></a><a href="Financeiro.html" style="text-decoration:none"><span class=""><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Financeiro</span></a><a href="Dashboard.html" style="text-decoration:none"><span class=""><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Relatórios</span></a></nav>
+</div>
+
+<button onclick="var e=document.querySelector('.scr');e.classList.toggle('dk');e.classList.toggle('lt')" style="position:fixed;top:12px;right:12px;padding:8px 12px;border-radius:8px;border:1px solid #888;background:#fff;font:13px Inter,sans-serif;cursor:pointer">Tema claro/escuro</button>
+</body>
+</html>
