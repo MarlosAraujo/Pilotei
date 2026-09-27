@@ -211,7 +211,7 @@ Link: https://claude.ai/artifact/8Ndkpkogppxa8YmM6LCXzM (privado; só abre na su
 8. Definir o provedor de hospedagem.
 9. Instalar Android Studio + emulador no Windows e validar o acesso a `http://10.0.2.2:7000`.
 10. Resend: verificar o domínio `pilotei.app.br` (DNS) e validar plano e limites.
-11. Canvas do protótipo no claude.ai: tirar o campo de senha de Criar conta e Entrar e incluir a tela Digitar código, como já feito em `design/`.
+11. Canvas do protótipo no claude.ai: tirar o campo de senha de Criar conta e Entrar e incluir a tela Digitar código e os sliders de Custos fixos, Metas e Veículo, como já feito em `design/`.
 
 ## Próximos passos
 1. ~~`001-setup/estrutura-inicial`: organizar `CLAUDE.md`, `docs/` e `design/` no repositório.~~

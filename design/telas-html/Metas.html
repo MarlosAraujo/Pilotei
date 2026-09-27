@@ -57,18 +57,51 @@ input{height:48px;box-sizing:border-box;border-radius:12px;border:1px solid var(
 </style>
 
 <style>html{background:#555}body{display:flex;justify-content:center;padding:24px 0}</style>
+<style>
+/* Slider com valor digitável (Custos, Metas, Veículo) */
+.scr{overflow-y:auto}
+.rng{gap:4px}
+.rng .val{height:40px;font-weight:700;text-align:right;padding:0 12px}
+.rng .val:focus{outline:none;border-color:var(--br);box-shadow:0 0 0 3px var(--brs)}
+.rng input[type=range]{height:28px;padding:0;margin:0;border:0;background:none;accent-color:var(--br);cursor:pointer}
+.rng .lim{display:flex;justify-content:space-between;font-size:11px;color:var(--mu)}
+</style>
 </head>
 <body>
 
 <div class="scr dk">
 <div class="top"><a class="back" href="Configuracoes.html" aria-label="Voltar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a><div style="flex-grow:1;display:flex;flex-direction:column;gap:6px"><h2>Metas e valores mínimos</h2></div></div>
-<h1>Quais são suas metas?</h1><p class="mu sm">Usadas no dashboard e no semáforo do Copiloto.</p>
-<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px"><div class="fld"><label>R$/km mínimo</label><input value="2,00"></div><div class="fld"><label>R$/hora mínimo</label><input value="35,00"></div><div class="fld"><label>Resultado diário</label><input value="150,00"></div><div class="fld"><label>Horas por dia</label><input value="8"></div></div>
-<div class="fld"><label>KM rodados por mês (aprox.)</label><input value="4.000"><div class="hint">Usado para ratear os custos fixos por km enquanto não há histórico.</div></div>
+<h1>Quais são suas metas?</h1><p class="mu sm">Usadas no dashboard e no semáforo do Copiloto. Arraste o controle ou toque no valor para digitar.</p>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px"><div class="fld rng" data-dec="2"><label>R$/km mínimo</label><input class="val" inputmode="decimal" aria-label="R$/km mínimo"><input type="range" min="0.5" max="5.0" step="0.05" value="2.0" aria-label="R$/km mínimo (ajuste)"><div class="lim"><span></span><span></span></div></div><div class="fld rng" data-dec="2"><label>R$/hora mínimo</label><input class="val" inputmode="decimal" aria-label="R$/hora mínimo"><input type="range" min="10" max="100" step="1" value="35" aria-label="R$/hora mínimo (ajuste)"><div class="lim"><span></span><span></span></div></div><div class="fld rng" data-dec="2"><label>Resultado diário</label><input class="val" inputmode="decimal" aria-label="Resultado diário"><input type="range" min="50" max="1000" step="10" value="150" aria-label="Resultado diário (ajuste)"><div class="lim"><span></span><span></span></div></div><div class="fld rng" data-dec="1" data-mind="0"><label>Horas por dia</label><input class="val" inputmode="decimal" aria-label="Horas por dia"><input type="range" min="1" max="16" step="0.5" value="8" aria-label="Horas por dia (ajuste)"><div class="lim"><span></span><span></span></div></div></div>
+<div class="fld rng" data-dec="0"><label>KM rodados por mês (aprox.)</label><input class="val" inputmode="decimal" aria-label="KM rodados por mês (aprox.)"><input type="range" min="500" max="10000" step="100" value="4000" aria-label="KM rodados por mês (aprox.) (ajuste)"><div class="lim"><span></span><span></span></div><div class="hint">Usado para ratear os custos fixos por km enquanto não há histórico.</div></div>
 <div class="card" style="flex-direction:row;align-items:center"><div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></div><div class="hint">Metas são manuais por enquanto. Com histórico, o Pilotei sugere ajustes por horário e dia, sempre explicando o motivo.</div></div>
 <div class="sp"></div><a class="btn" href="Configuracoes.html">Salvar</a>
 </div>
 
 <button onclick="var e=document.querySelector('.scr');e.classList.toggle('dk');e.classList.toggle('lt')" style="position:fixed;top:12px;right:12px;padding:8px 12px;border-radius:8px;border:1px solid #888;background:#fff;font:13px Inter,sans-serif;cursor:pointer">Tema claro/escuro</button>
+<script>
+// Slider com valor digitável: o slider ajusta rápido; tocar no valor permite digitar o número exato.
+function fmt(n, d) {
+  var dec = +d.dec || 0, min = d.mind != null ? +d.mind : dec;
+  return n.toLocaleString('pt-BR', { minimumFractionDigits: min, maximumFractionDigits: dec, useGrouping: d.grp !== '0' });
+}
+function lerNumero(t) { return parseFloat(String(t).replace(/\./g, '').replace(',', '.')); }
+document.querySelectorAll('.rng').forEach(function (c) {
+  var r = c.querySelector('input[type=range]'), v = c.querySelector('.val'), d = c.dataset;
+  var lim = c.querySelectorAll('.lim span');
+  lim[0].textContent = fmt(+r.min, d); lim[1].textContent = fmt(+r.max, d);
+  v.value = fmt(+r.value, d);
+  r.addEventListener('input', function () { v.value = fmt(+r.value, d); });
+  function aplicar() {
+    var n = lerNumero(v.value);
+    if (isNaN(n)) n = +r.value;
+    n = Math.min(+r.max, Math.max(+r.min, n));
+    r.value = n; v.value = fmt(n, d);
+  }
+  v.addEventListener('change', aplicar);
+  v.addEventListener('keydown', function (e) { if (e.key === 'Enter') v.blur(); });
+  v.addEventListener('focus', function () { v.select(); });
+});
+</script>
 </body>
 </html>
