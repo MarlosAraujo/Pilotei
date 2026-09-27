@@ -14,12 +14,12 @@ Origem: drivers.uber.com › Ganhos › Relatórios semanais › baixar PDF. Val
 ## Mapeamento
 | Campo do PDF | Destino | Observação |
 |---|---|---|
-| Evento = "Uber X" | Trip.category = "UberX" | |
-| Evento = "Prioridade" | Trip.category = "UberX Prioridade" | |
-| Evento = "Promoção - ..." | Income(type=BONUS), não Trip | Ex.: R$ 75,00 extra por concluir 5 viagens |
-| Data e hora do evento | Trip.started_at | Provável início ou aceite. PRECISA VALIDAR |
-| Processado (data e hora) | Trip.finished_at (aprox.) | Diferença típica de 10 a 36 min |
-| Seus ganhos | Trip.net_amount | Já líquido, com dinâmico e Uber Pro rateados |
+| Evento = "Uber X" | TripImport.category = "UberX" | |
+| Evento = "Prioridade" | TripImport.category = "UberX Prioridade" | |
+| Evento = "Promoção - ..." | Income(type=BONUS), não TripImport | Ex.: R$ 75,00 extra por concluir 5 viagens |
+| Data e hora do evento | TripImport.started_at | Provável início ou aceite. PRECISA VALIDAR |
+| Processado (data e hora) | TripImport.finished_at (aprox.) | Diferença típica de 10 a 36 min |
+| Seus ganhos | TripImport.net_amount | Já líquido, com dinâmico e Uber Pro rateados |
 | Saldo acumulado | só para conferência | Valida a ordem e a leitura |
 | Linha sem "Seus ganhos" (R$ 0,00) | Ajuste; vincular ao evento de mesma data e hora | Ex.: evento 18/09 18:57, processado em 20/09 |
 
