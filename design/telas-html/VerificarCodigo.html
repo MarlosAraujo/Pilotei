@@ -65,10 +65,10 @@ input{height:48px;box-sizing:border-box;border-radius:12px;border:1px solid var(
 <div class="top"><a class="back" id="voltar" href="Entrar.html" aria-label="Voltar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a><div style="flex-grow:1;display:flex;flex-direction:column;gap:6px"><h2>Código de acesso</h2></div></div>
 <h1>Digite o código</h1><p class="mu">Enviamos um código de 6 dígitos para <b style="color:var(--tx)">motorista@email.com</b>. Ele vale por 10 minutos.</p>
 <div class="otp" role="group" aria-label="Código de 6 dígitos"><input inputmode="numeric" maxlength="1" aria-label="Dígito 1" value="4"><input inputmode="numeric" maxlength="1" aria-label="Dígito 2" value="8"><input inputmode="numeric" maxlength="1" aria-label="Dígito 3" value="2"><input inputmode="numeric" maxlength="1" aria-label="Dígito 4" value="1"><input inputmode="numeric" maxlength="1" aria-label="Dígito 5" autofocus><input inputmode="numeric" maxlength="1" aria-label="Dígito 6"></div>
+<a class="btn" id="confirmar" href="Dashboard.html">Validar código</a>
 <div class="hint">Não chegou? Confira a caixa de spam.</div>
 <div class="row"><span class="mu sm" id="reenviar">Reenviar em 60 s</span><a class="lnk" id="trocar" href="Entrar.html">Trocar e-mail</a></div>
 <div class="sp"></div>
-<a class="btn" id="confirmar" href="Dashboard.html">Entrar</a>
 </div>
 
 <button onclick="var e=document.querySelector('.scr');e.classList.toggle('dk');e.classList.toggle('lt')" style="position:fixed;top:12px;right:12px;padding:8px 12px;border-radius:8px;border:1px solid #888;background:#fff;font:13px Inter,sans-serif;cursor:pointer">Tema claro/escuro</button>
@@ -77,7 +77,7 @@ input{height:48px;box-sizing:border-box;border-radius:12px;border:1px solid var(
 if (new URLSearchParams(location.search).get('de') === 'criar') {
   document.getElementById('voltar').href = 'CriarConta.html';
   document.getElementById('trocar').href = 'CriarConta.html';
-  var c = document.getElementById('confirmar'); c.href = 'DashboardVazio.html'; c.textContent = 'Criar conta';
+  document.getElementById('confirmar').href = 'DashboardVazio.html';
 }
 // Cada campo aceita um dígito e passa para o próximo; Backspace volta.
 var campos = document.querySelectorAll('.otp input');
