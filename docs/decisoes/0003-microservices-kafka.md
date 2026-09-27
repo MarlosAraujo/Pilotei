@@ -42,8 +42,8 @@ A decisão `0002-stack-apps-e-backend.md` definiu o backend em NestJS com micros
 - **Operação local mais pesada:** Kafka + Postgres + 5 serviços (7 no pós-MVP) em containers no WSL. As portas 7000–7600 são publicadas pelos containers.
 
 ## Em aberto
-1. PROPOSTA: Docker Compose, Kafka em modo KRaft (sem ZooKeeper). Modo híbrido (HTTP + Kafka) e `10.0.2.2:7000` também seguem como PROPOSTA.
-2. Catálogo de tópicos e eventos (nomes, donos, formato das mensagens).
+1. ~~PROPOSTA: Docker Compose, Kafka em modo KRaft (sem ZooKeeper). Modo híbrido (HTTP + Kafka) e `10.0.2.2:7000` também seguem como PROPOSTA.~~ Aprovados em `0004-ambiente-e-containers.md`, exceto `10.0.2.2:7000`, que segue PRECISA VALIDAR.
+2. ~~Catálogo de tópicos e eventos (nomes, donos, formato das mensagens).~~ Definido em `0006-catalogo-topicos-kafka.md`.
 3. Autenticação e hospedagem.
 
 ## Referências

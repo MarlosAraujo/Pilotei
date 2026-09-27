@@ -9,12 +9,17 @@ Cada entidade do backend responde a três perguntas: **o que é**, **para que se
 ### `User`
 - **O que é:** o motorista cadastrado no Pilotei.
 - **Para que serve:** é o dono de todos os dados (veículo, custos, ganhos, metas, assinatura). Sem ele, nada é gravado.
-- **Como utilizar:** criado no cadastro (Google ou e-mail). Todo registro do motorista referencia o `User`. A exclusão de conta apaga o `User` e todos os seus dados; a exportação gera uma cópia deles (LGPD).
+- **Como utilizar:** criado no primeiro login (Google ou e-mail + OTP). O mesmo e-mail verificado leva ao mesmo `User`, seja pelo Google, seja pelo OTP. Todo registro do motorista referencia o `User`. A exclusão de conta apaga o `User` e todos os seus dados; a exportação gera uma cópia deles (LGPD).
 
 ### `Session`
 - **O que é:** uma sessão de login ativa em um aparelho.
-- **Para que serve:** prova que as chamadas do app vêm do motorista autenticado, sem pedir senha a cada uso.
-- **Como utilizar:** criada no login e encerrada ao sair, ao expirar ou ao excluir a conta. Cada requisição do app leva o token da sessão.
+- **Para que serve:** prova que as chamadas do app vêm do motorista autenticado, sem pedir novo código ou novo login com Google a cada uso.
+- **Como utilizar:** criada no login e encerrada ao sair, ao expirar ou ao excluir a conta. Guarda o hash do refresh token (30 dias, trocado a cada uso). Cada requisição do app leva o access token (JWT de 15 minutos). Ver `docs/decisoes/0005-autenticacao.md`.
+
+### `EmailOtp`
+- **O que é:** um código de uso único enviado por e-mail (pelo Resend) para o motorista entrar sem senha.
+- **Para que serve:** comprova que o motorista é dono do e-mail. O Pilotei não usa senha, então não há recuperação de senha.
+- **Como utilizar:** criado quando o motorista pede o código; guarda só o hash, a validade e as tentativas. Usado uma vez e descartado. Parâmetros: 6 dígitos, 10 minutos, 5 tentativas, novo envio após 60 segundos.
 
 ## 2. Assinaturas
 
