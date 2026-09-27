@@ -9,7 +9,7 @@ A arquitetura proposta no planejamento era offline-first: dados no celular (Room
 
 ## Decisão
 1. **O backend é a fonte da verdade.** O app Android é um cliente: o que ele guarda localmente é só cache de leitura.
-2. **Responsabilidades do backend:** conta e login, validação de assinaturas, backup e sincronização dos dados do motorista, configuração remota e feature flags.
+2. **Responsabilidades do backend:** conta e login, validação de assinaturas, backup dos dados do motorista, configuração remota e feature flags.
 3. **Internet obrigatória para lançamentos (decisão A).** Todo lançamento (abastecimento, KM, despesa, ganhos, importação) exige conexão. Sem sinal, o app mostra os últimos dados carregados, só para consulta.
 4. **O PDF da Uber é lido no celular (decisão B).** O arquivo nunca sai do aparelho. O app lê o PDF, mostra a prévia, e envia ao backend só as corridas, promoções e ajustes já lidos, junto com o hash do arquivo e as contagens do lote.
 5. **As métricas são calculadas no servidor (decisão C).** Custo/km, nível de confiança, resultado econômico, resultado de caixa e ganho real por hora vêm do backend. O app não repete essa lógica.
