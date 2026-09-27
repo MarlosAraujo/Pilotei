@@ -12,7 +12,11 @@
 - Ao citar Uber, Google Play, Android etc., separar **CONFIRMADO**, **PROPOSTA** e **PRECISA VALIDAR**. Não inventar APIs.
 
 ## O produto
-App Android para motoristas de aplicativo (Uber, 99, inDrive e corridas particulares). Ele junta:
+Dois apps Android (decisão `docs/decisoes/0002-stack-apps-e-backend.md`):
+- **Pilotei Driver:** app para motoristas de aplicativo (descrito abaixo), com gestão e Copiloto.
+- **Pilotei APP:** app do usuário final, que chama um motorista do Pilotei Driver para uma corrida. **Pós-MVP**, no serviço `trip`. O Pilotei ganha **R$ 1,00 por corrida realizada**.
+
+O Pilotei Driver atende motoristas de aplicativo (Uber, 99, inDrive e corridas particulares). Ele junta:
 **gestão do veículo + custos reais + ganhos por plataforma + análise de ofertas + inteligência histórica.**
 
 A ideia central é um ciclo de dados: o app começa com o custo **estimado**, informado pelo motorista. Com abastecimentos, manutenções e KM reais, passa a usar o custo **observado** e depois o **personalizado**, sempre com **nível de confiança** e explicação da base usada.
@@ -23,7 +27,7 @@ Não confundir nunca: receita ≠ lucro; R$/km ≠ lucro/km; oferta ≠ corrida;
 - **MVP 1 — Controle:** veículo, abastecimento, manutenção (inclusive preventiva), custos fixos, lançamentos manuais, importação do relatório semanal da Uber em PDF, dashboard, financeiro, metas e assinatura.
 - **MVP 2 — Copiloto:** leitura da oferta na tela, semáforo, voz e comparação oferta × resultado.
 - **MVP 3 — Inteligência:** análises por horário, região e categoria, KM vazio, tempo ocioso e metas dinâmicas.
-- **Pós-MVP:** importação da 99 e importação do histórico pelo "Baixar seus dados" da Uber (ZIP com CSV).
+- **Pós-MVP:** Pilotei APP (passageiro chama motorista do Pilotei Driver), importação da 99 e importação do histórico pelo "Baixar seus dados" da Uber (ZIP com CSV).
 
 ## Decisões tomadas
 
@@ -39,7 +43,10 @@ Não confundir nunca: receita ≠ lucro; R$/km ≠ lucro/km; oferta ≠ corrida;
   - escuro: bg `#0B1411`, surface `#12201C`, surface2 `#182B26`, texto `#EEF8F4`, secundário `#93A8A0`, linha `#243A33`, verde `#19D9A0`, aviso `#F5B544`
   - claro: bg `#F4F7F6`, surface `#FFFFFF`, surface2 `#EAF2EF`, texto `#0F1E1A`, secundário `#56665F`, linha `#D9E3DF`, verde `#00C896`, verde para texto `#00755A`, aviso `#9A6400`
 
-### Monetização (Google Play Billing)
+### Monetização
+- **Pilotei Driver:** assinatura do motorista (abaixo). **Pilotei APP (pós-MVP):** R$ 1,00 por corrida realizada, pago pelo passageiro pelo app (gateway de pagamento a definir; não é Google Play Billing).
+
+#### Assinatura do Pilotei Driver (Google Play Billing)
 - Só pago, com **7 dias de teste grátis** (apenas para quem nunca assinou).
 - **Mensal: R$ 10,99** (definido). **Anual: R$ 99,90** (sugestão, ainda a confirmar), equivalente a R$ 8,33/mês, 24% mais barato.
 - Um produto de assinatura com dois planos (mensal e anual), cada um com a oferta de teste. Os preços exibidos vêm da Play (`ProductDetails`), nunca fixos no código.
@@ -72,8 +79,8 @@ Especificação completa em `docs/parser-uber-relatorio-semanal.md`. Resumo:
   - Linha 1: processado (data) | evento | seus ganhos | saldo
   - Linha 2: hora do processamento | data e hora do evento | saldo acumulado
 - **Mapeamento:**
-  - "Uber X" → `Trip.category = "UberX"`
-  - "Prioridade" → `Trip.category = "UberX Prioridade"`
+  - "Uber X" → `TripImport.category = "UberX"`
+  - "Prioridade" → `TripImport.category = "UberX Prioridade"`
   - "Promoção - ..." → `Income(type=BONUS)`, não é corrida
   - linha de R$ 0,00 → ajuste, vinculado ao evento de mesma data e hora
 - **Tempos:** a data e hora do evento vira `started_at` (PRECISA VALIDAR se é o início ou o aceite). O processamento vira `finished_at`, aproximado.
@@ -88,13 +95,13 @@ Especificação completa em `docs/parser-uber-relatorio-semanal.md`. Resumo:
 
 ### Modelo de dados (plataformas)
 - `Platform`: UBER, NINETY_NINE, INDRIVE, PRIVATE, OTHER. 99Pop é categoria da 99, não plataforma.
-- `Trip`: platform, category, external_trip_id (ou hash), started_at, finished_at, duration_s, distance_m, gross_amount, net_amount, tips, platform_fee, status (concluída ou cancelada com taxa), source (FILE ou MANUAL), import_batch_id, metadata (JSON).
+- `TripImport`: platform, category, external_trip_id (ou hash), started_at, finished_at, duration_s, distance_m, gross_amount, net_amount, tips, platform_fee, status (concluída ou cancelada com taxa), source (FILE ou MANUAL), import_batch_id, metadata (JSON).
 - `Income` (BONUS): promoções e bônus.
 - `PlatformDaySummary`: dia lançado à mão (data, platform, net_amount, km, online_minutes, trips_count). Evita criar corridas inventadas.
 - `ImportBatch`: origem, hash do arquivo, período, contagens e erros. Permite desfazer uma importação.
 - `PlatformConnection`: platform, method, status, last_import_at, enabled.
 - Dinheiro sempre em **centavos (Long)**. Datas em UTC, exibidas no fuso America/Sao_Paulo.
-- O Dashboard soma Trip, Income e PlatformDaySummary sem contar nada em dobro. O PDF semanal substitui os dias manuais da Uber.
+- O Dashboard soma TripImport, Income e PlatformDaySummary sem contar nada em dobro. O PDF semanal substitui os dias manuais da Uber.
 
 ### Copiloto (MVP 2)
 - **Captura:** o AccessibilityService serve de gatilho e lê a árvore de elementos da tela. Se a árvore não trouxer os valores, usar `takeScreenshot()` (Android 11+) com OCR. MediaProjection fica como alternativa.
@@ -144,12 +151,34 @@ Link: https://claude.ai/artifact/8Ndkpkogppxa8YmM6LCXzM (privado; só abre na su
    - **Assinatura:** estados teste, ativo, cancelado e expirado; Mensal R$ 10,99 selecionado; Anual R$ 99,90; gerenciar na Google Play; restaurar compra.
 4. **Detalhes:** Seu custo estimado (com confiança), Custos fixos, Metas e Veículo (uso pessoal sim/não).
 
-## Arquitetura técnica (PROPOSTA, ainda não aprovada)
-- **Base:** Kotlin, Jetpack Compose e Room, offline-first. Os dados ficam no celular e o backup é opcional.
-- **Pagamento:** Google Play Billing.
-- **Módulos:** `core-model`, `core-db`, `engine` (custos e métricas, sem dependência de Android e testável), `import` (EarningsSource e leitores de arquivo), `feature-*` (dashboard, financeiro, veículo, configurações, assinatura) e, no futuro, `copilot`.
-- **Configuração remota** para feature flags e URLs dos portais.
-- **Backend:** haverá um backend (decidido em 26/09/2026). Stack, responsabilidades (conta, assinatura, backup, sincronização, configuração remota) e hospedagem ainda PRECISAM SER DEFINIDOS, ponto a ponto, antes de qualquer código.
+## Arquitetura técnica
+
+### Aprovado (decisão `docs/decisoes/0001-backend-fonte-da-verdade.md`, 26/09/2026)
+- **O backend é a fonte da verdade.** O app é cliente; o que guarda localmente é só cache de leitura.
+- **Internet obrigatória para lançar.** Sem sinal, o app só consulta os últimos dados carregados. Não há sincronização offline. Não é risco: os apps das plataformas também exigem internet.
+- **O PDF da Uber é lido no celular** e nunca sai do aparelho; o app envia ao backend só as corridas já lidas.
+- **As métricas (custo/km, resultados, ganho real por hora) são calculadas no servidor.**
+- **Backend em 11 domínios:** Identidade, Assinaturas, Veículos, Custos, Ganhos, Importação, Métricas, Relatórios, Config remota e flags, Notificações, Copiloto (MVP 2) e, no pós-MVP, o 12º: Corridas do Pilotei APP. Ver `docs/backend/dominios.md` e `docs/backend/glossario-entidades.md`.
+
+### Aprovado (decisão `docs/decisoes/0002-stack-apps-e-backend.md`, 27/09/2026)
+- **Apps em Kotlin nativo** (Jetpack Compose): **Pilotei Driver** (motorista: gestão + Copiloto) e **Pilotei APP** (passageiro chama motorista).
+- **Backend em NestJS (Node + TypeScript), em microservices.** Comparação em `docs/backend/comparacao-stack.md`.
+- **Desenvolvimento:** apps no Windows (Android Studio + emulador); backend no WSL2 (Ubuntu 24).
+
+### Aprovado (decisão `docs/decisoes/0003-microservices-kafka.md`, 27/09/2026)
+- **Serviços:** `gateway` 7000 (BFF, autenticação), `core` 7100 (Identidade + Assinaturas), `vehicle` 7200 (Veículos, Custos, Ganhos, Importação), `reports` 7300 (Métricas + Relatórios), `notification` 7400 (Config remota + Notificações), `copilot` 7500 (MVP 2), `trip` 7600 (pós-MVP, corridas do Pilotei APP).
+- **Kafka** entre os serviços; cada serviço publica e consome eventos. Os apps falam só com o `gateway`, em HTTP.
+- **PostgreSQL único, um schema por serviço.** Nenhum serviço consulta o schema de outro.
+- **Kafka, Postgres e todos os microservices rodam em Docker** (Docker Engine direto no WSL). Todos se conectam ao mesmo Kafka, em tópicos diferentes.
+- **ORM: Prisma v7.**
+- **Nomes:** `Trip` = corrida do Pilotei APP (serviço `trip`); `TripImport` = corrida de outra plataforma, importada ou lançada à mão.
+
+### PROPOSTA, ainda não aprovada
+- **App:** Room só como cache. Pagamento pela Google Play Billing.
+- **Módulos do app (a revisar com as decisões acima):** `core-model`, `core-network`, `import` (EarningsSource e leitor do PDF), `feature-*` (dashboard, financeiro, veículo, configurações, assinatura) e, no futuro, `copilot`. O antigo `engine` passa para o domínio de Métricas no backend.
+- **Serviços em modo híbrido** (HTTP + Kafka), com a porta usada para health check.
+- **Docker Compose**, Kafka em modo KRaft.
+- **PRECISAM SER DEFINIDOS:** catálogo de tópicos, autenticação e hospedagem.
 
 ## Pendências
 1. Confirmar o preço do plano anual.
@@ -158,10 +187,11 @@ Link: https://claude.ai/artifact/8Ndkpkogppxa8YmM6LCXzM (privado; só abre na su
 4. Conseguir um PDF de exemplo da 99 (pós-MVP).
 5. Fazer o app de teste de acessibilidade antes do MVP 2.
 6. Revisar os Termos de Uso e a Política de Privacidade do Pilotei (LGPD), com o aviso de não afiliação.
-7. Definir a arquitetura do backend (stack, responsabilidades e hospedagem).
+7. Pilotei APP (pós-MVP): gateway de pagamento, repasse ao motorista, campos da `Trip`, regulação e políticas da Google Play.
+8. Definir catálogo de tópicos Kafka, autenticação e hospedagem.
 
 ## Próximos passos
 1. ~~`001-setup/estrutura-inicial`: organizar `CLAUDE.md`, `docs/` e `design/` no repositório.~~
 2. Definir, ponto a ponto, a stack do app e do backend (`002-setup-stack`), registrando as decisões em `docs/`.
-3. Após aprovação: montar a estrutura do projeto Android (módulos acima) e começar pelo `engine` (custo/km, resultado e ganho real por hora), com testes unitários.
+3. Após aprovação: montar a estrutura do backend e do app e começar pelo domínio de Métricas (custo/km, resultado e ganho real por hora), com testes unitários.
 4. Em seguida: o leitor do PDF da Uber, com testes golden usando um PDF anonimizado.
