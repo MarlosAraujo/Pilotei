@@ -194,11 +194,24 @@ Link: https://claude.ai/artifact/8Ndkpkogppxa8YmM6LCXzM (privado; só abre na su
 - **Pedido-resposta:** `<serviço>.rpc.<ação>` (ex.: `vehicle.rpc.fuel-entry.create`), resposta em `.reply`.
 - **Confiabilidade:** outbox na mesma transação, consumidores idempotentes por `eventId`, DLQ `<tópico>.dlq` após 3 tentativas. Tópicos criados por script.
 - **MVP 1:** `core.user.v1`, `core.subscription.v1`, `core.entitlement.v1` (compactado), `vehicle.vehicle.v1`, `vehicle.odometer.v1`, `vehicle.cost.v1`, `vehicle.earnings.v1`, `vehicle.import.v1`, `reports.cost-snapshot.v1`.
-- **Backend em monorepo** com o pacote `@pilotei/contracts` (envelope, eventos e RPC). Local e ferramenta do monorepo: a definir.
+- **Backend em monorepo** com o pacote `@pilotei/contracts` (envelope, eventos e RPC). Local e ferramenta: decisão 0007.
+
+### Aprovado (decisão `docs/decisoes/0007-monorepo-backend-e-metricas.md`, 03/10/2026)
+- **Repositório próprio e privado:** `MarlosAraujo/Pilotei-Backend`. As decisões continuam neste repositório, em `docs/decisoes/`. Numeração de branches independente.
+- **Nest CLI em modo monorepo** (`apps/` e `libs/`, prefixo `@pilotei/`), pnpm, Node 24 LTS, TypeScript estrito, Prisma v7 (um schema e um client por serviço) e Jest.
+- **Libs:** `contracts`, `kafka` (outbox, idempotência, DLQ), `common` (config, health, dinheiro, datas) e `metrics` (fórmulas puras, sem banco, Kafka nem NestJS).
+- **Custo/km por componente** (combustível, manutenção e pneus, custos fixos), cada um com a sua base:
+  - **estimado:** confiança baixa;
+  - **observado:** confiança média com ≥ 2 tanques cheios e ≥ 500 km reais; alta com ≥ 30 dias e ≥ 1.500 km reais e manutenção registrada;
+  - **personalizado:** ajuste manual do motorista, mantendo o observado original visível.
+
+  A confiança total é a menor entre as dos componentes. Os custos fixos são rateados pelo KM total, e a janela do observado é de 90 dias.
+- **Precisão:** custo/km em centésimos de centavo por km. O arredondamento é meio para cima, só no fim. Divisão por zero vira "sem dado".
+- **Horas online nos dias do PDF:** o motorista informa as horas (no dia ou depois, olhando o app Uber Driver). Sem as horas, o ganho real por hora fica "sem dado".
 
 ### PROPOSTA, ainda não aprovada
 - **Módulos do app (a revisar com as decisões acima):** `core-model`, `core-network`, `import` (EarningsSource e leitor do PDF), `feature-*` (dashboard, financeiro, veículo, configurações, assinatura) e, no futuro, `copilot`. O antigo `engine` passa para o domínio de Métricas no backend.
-- **PRECISAM SER DEFINIDOS:** provedor de hospedagem; local e ferramenta do monorepo do backend.
+- **PRECISA SER DEFINIDO:** provedor de hospedagem.
 
 ## Pendências
 1. Confirmar o preço do plano anual.
@@ -216,6 +229,7 @@ Link: https://claude.ai/artifact/8Ndkpkogppxa8YmM6LCXzM (privado; só abre na su
 ## Próximos passos
 1. ~~`001-setup/estrutura-inicial`: organizar `CLAUDE.md`, `docs/` e `design/` no repositório.~~
 2. ~~Definir, ponto a ponto, a stack do app e do backend (`002-setup-stack`), registrando as decisões em `docs/`.~~
-3. `003-setup-infra`: confirmar as PROPOSTAS e definir catálogo de tópicos Kafka, autenticação e hospedagem (0004, 0005 e 0006 feitas; falta hospedagem).
-4. Após aprovação: montar a estrutura do backend e do app e começar pelo domínio de Métricas (custo/km, resultado e ganho real por hora), com testes unitários.
-5. Em seguida: o leitor do PDF da Uber, com testes golden usando um PDF anonimizado.
+3. ~~`003-setup-infra`: ambiente, autenticação e catálogo de tópicos Kafka (0004, 0005 e 0006).~~ Hospedagem fica para branch própria, perto do deploy.
+4. ~~`004-setup-monorepo-backend`: monorepo do backend e fórmulas de Métricas (0007).~~
+5. No `Pilotei-Backend`: `001-setup/estrutura` (monorepo, libs base, 5 serviços com health check, Docker Compose, CI) e `002-metricas` (`libs/metrics` com TDD).
+6. Em seguida: o leitor do PDF da Uber, com testes golden usando um PDF anonimizado.
