@@ -120,7 +120,7 @@ Especificação completa em `docs/parser-uber-relatorio-semanal.md`. Resumo:
 ## Telas (protótipo no canvas "Pilotei — Telas do app", no claude.ai)
 Link: https://claude.ai/artifact/8Ndkpkogppxa8YmM6LCXzM (privado; só abre na sua conta). Cópia local em `design/`.
 
-1. **Acesso:** Abertura → Boas-vindas (Criar conta / Já tenho conta) → Criar conta (Google ou e-mail) / Entrar.
+1. **Acesso:** Abertura → Boas-vindas (Criar conta / Já tenho conta) → Criar conta (Google ou e-mail + OTP) / Entrar. Sem senha (decisão 0005).
 2. **Uso diário:**
    - **Dashboard do primeiro acesso:** "Complete seu veículo e custos", com lista de passos: conta, veículo, custos fixos e valores mínimos.
    - **Dashboard gerencial:**
@@ -173,12 +173,32 @@ Link: https://claude.ai/artifact/8Ndkpkogppxa8YmM6LCXzM (privado; só abre na su
 - **ORM: Prisma v7.**
 - **Nomes:** `Trip` = corrida do Pilotei APP (serviço `trip`); `TripImport` = corrida de outra plataforma, importada ou lançada à mão.
 
+### Aprovado (decisão `docs/decisoes/0004-ambiente-e-containers.md`, 27/09/2026)
+- **Serviços em modo híbrido** (HTTP + Kafka); a porta HTTP serve para health check. Só o `gateway` atende os apps.
+- **Desenvolvimento:** Docker Compose no WSL, com Kafka em modo **KRaft**, Postgres e todos os serviços em containers.
+- **Hospedagem por containers**, sem amarrar a um provedor (Azure, AWS, Oracle Cloud, Hetzner…). Configuração por variáveis de ambiente.
+- **App:** Room só como cache de leitura. Assinatura pela Google Play Billing.
+- PRECISA VALIDAR: emulador → `http://10.0.2.2:7000` (Android Studio e emulador ainda serão instalados).
+
+### Aprovado (decisão `docs/decisoes/0005-autenticacao.md`, 27/09/2026)
+- **Autenticação própria no `core`.** Login com Google (Credential Manager + `google-auth-library`) ou com **e-mail + OTP, sem senha**, com e-mails enviados pelo **Resend**. Sem senha, não há recuperação de senha.
+- **OTP:** 6 dígitos, 10 min, 5 tentativas, reenvio após 60 s. Google e OTP com o mesmo e-mail caem no mesmo `User`.
+- **Domínio de envio:** `pilotei.app.br` (verificar no Resend).
+- **Tokens:** access token JWT de 15 min (`sub = userId`), validado localmente pelo `gateway`; refresh token de 30 dias, trocado a cada uso, guardado como hash na `Session`.
+- **Eventos:** envelope `{ eventId, type, version, occurredAt, userId, correlationId, payload }`, com `userId` como chave de partição. Exclusão de conta publica `user.deleted`.
+- **Billing:** hash do `userId` em `obfuscatedAccountId`.
+- Passageiros do Pilotei APP: decidir no pós-MVP.
+
+### Aprovado (decisão `docs/decisoes/0006-catalogo-topicos-kafka.md`, 27/09/2026)
+- **Tópicos de evento:** `<serviço>.<assunto>.v<N>` (ex.: `vehicle.cost.v1`), um por assunto, tipo no campo `type`, chave `userId`, JSON sem dados pessoais.
+- **Pedido-resposta:** `<serviço>.rpc.<ação>` (ex.: `vehicle.rpc.fuel-entry.create`), resposta em `.reply`.
+- **Confiabilidade:** outbox na mesma transação, consumidores idempotentes por `eventId`, DLQ `<tópico>.dlq` após 3 tentativas. Tópicos criados por script.
+- **MVP 1:** `core.user.v1`, `core.subscription.v1`, `core.entitlement.v1` (compactado), `vehicle.vehicle.v1`, `vehicle.odometer.v1`, `vehicle.cost.v1`, `vehicle.earnings.v1`, `vehicle.import.v1`, `reports.cost-snapshot.v1`.
+- **Backend em monorepo** com o pacote `@pilotei/contracts` (envelope, eventos e RPC). Local e ferramenta do monorepo: a definir.
+
 ### PROPOSTA, ainda não aprovada
-- **App:** Room só como cache. Pagamento pela Google Play Billing.
 - **Módulos do app (a revisar com as decisões acima):** `core-model`, `core-network`, `import` (EarningsSource e leitor do PDF), `feature-*` (dashboard, financeiro, veículo, configurações, assinatura) e, no futuro, `copilot`. O antigo `engine` passa para o domínio de Métricas no backend.
-- **Serviços em modo híbrido** (HTTP + Kafka), com a porta usada para health check.
-- **Docker Compose**, Kafka em modo KRaft.
-- **PRECISAM SER DEFINIDOS:** catálogo de tópicos, autenticação e hospedagem.
+- **PRECISAM SER DEFINIDOS:** provedor de hospedagem; local e ferramenta do monorepo do backend.
 
 ## Pendências
 1. Confirmar o preço do plano anual.
@@ -188,10 +208,14 @@ Link: https://claude.ai/artifact/8Ndkpkogppxa8YmM6LCXzM (privado; só abre na su
 5. Fazer o app de teste de acessibilidade antes do MVP 2.
 6. Revisar os Termos de Uso e a Política de Privacidade do Pilotei (LGPD), com o aviso de não afiliação.
 7. Pilotei APP (pós-MVP): gateway de pagamento, repasse ao motorista, campos da `Trip`, regulação e políticas da Google Play.
-8. Definir catálogo de tópicos Kafka, autenticação e hospedagem.
+8. Definir o provedor de hospedagem.
+9. Instalar Android Studio + emulador no Windows e validar o acesso a `http://10.0.2.2:7000`.
+10. Resend: verificar o domínio `pilotei.app.br` (DNS) e validar plano e limites.
+11. Canvas do protótipo no claude.ai: tirar o campo de senha de Criar conta e Entrar e incluir a tela Digitar código e os sliders de Custos fixos, Metas e Veículo, como já feito em `design/`.
 
 ## Próximos passos
 1. ~~`001-setup/estrutura-inicial`: organizar `CLAUDE.md`, `docs/` e `design/` no repositório.~~
-2. Definir, ponto a ponto, a stack do app e do backend (`002-setup-stack`), registrando as decisões em `docs/`.
-3. Após aprovação: montar a estrutura do backend e do app e começar pelo domínio de Métricas (custo/km, resultado e ganho real por hora), com testes unitários.
-4. Em seguida: o leitor do PDF da Uber, com testes golden usando um PDF anonimizado.
+2. ~~Definir, ponto a ponto, a stack do app e do backend (`002-setup-stack`), registrando as decisões em `docs/`.~~
+3. `003-setup-infra`: confirmar as PROPOSTAS e definir catálogo de tópicos Kafka, autenticação e hospedagem (0004, 0005 e 0006 feitas; falta hospedagem).
+4. Após aprovação: montar a estrutura do backend e do app e começar pelo domínio de Métricas (custo/km, resultado e ganho real por hora), com testes unitários.
+5. Em seguida: o leitor do PDF da Uber, com testes golden usando um PDF anonimizado.

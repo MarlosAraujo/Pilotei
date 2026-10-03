@@ -7,7 +7,7 @@ O backend é a fonte da verdade e se divide em 12 domínios (o 12º, pós-MVP, a
 
 | # | Domínio | Responsável por | Entidades | Fase |
 |---|---|---|---|---|
-| 1 | **Identidade** | Cadastro, login com Google e e-mail, sessões e tokens, recuperação de senha, exclusão de conta e exportação de dados (LGPD) | `User`, `Session` | MVP 1 |
+| 1 | **Identidade** | Cadastro, login com Google e com e-mail + OTP (sem senha, envio pelo Resend), sessões e tokens, exclusão de conta e exportação de dados (LGPD). Ver `docs/decisoes/0005-autenticacao.md` | `User`, `Session`, `EmailOtp` | MVP 1 |
 | 2 | **Assinaturas** | Validar as compras da Google Play, receber as notificações da Play e decidir quem pode fazer lançamentos | `Subscription`, `Entitlement` | MVP 1 |
 | 3 | **Veículos** | Veículo, odômetro e uso pessoal | `Vehicle`, `OdometerReading` | MVP 1 |
 | 4 | **Custos** | Abastecimentos, manutenção (inclusive preventiva), custos fixos e despesas | `FuelEntry`, `Maintenance`, `FixedCost`, `Expense` | MVP 1 |
