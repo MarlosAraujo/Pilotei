@@ -18,7 +18,7 @@ A `0006-catalogo-topicos-kafka.md` deixou em aberto o local e a ferramenta do mo
 - CONFIRMADO (documentação do NestJS): o modo monorepo tem um único `package.json` e um único `node_modules` na raiz, `nest-cli.json` com `"monorepo": true` e a lista de `projects`. Os serviços ficam em `apps/` (`nest generate app`) e as bibliotecas em `libs/` (`nest generate library`), com prefixo de import configurável.
 - **Prefixo das bibliotecas:** `@pilotei/` (ex.: `@pilotei/contracts`, como previsto na `0006`).
 - Cada serviço gera seu próprio build e sua própria imagem Docker (`nest build <serviço>`).
-- **Versões (PROPOSTA):** Node 24 LTS, NestJS na última versão estável, TypeScript estrito, Prisma v7 (decisão `0003`), Jest para testes (padrão do NestJS). PRECISA VALIDAR as versões exatas na criação do projeto.
+- **Versões:** Node 24 LTS, NestJS 12, TypeScript 6 estrito, Prisma 7.10 (decisão `0003`) e Vitest para testes. Ver a revisão de 03/10/2026 abaixo.
 - **Gerenciador de pacotes:** pnpm.
 
 ### 3. Estrutura
@@ -100,6 +100,18 @@ Conferência com os números das telas: 402,60 − 200 × 0,98 = 206,60; 206,60 
 1. `001-setup/estrutura`: monorepo Nest, `libs/common`, `libs/contracts`, os 5 serviços do MVP 1 só com health check, Docker Compose (Postgres + Kafka KRaft + script de tópicos), lint e CI de testes.
 2. `002-metricas`: `libs/metrics` com as fórmulas da seção 4 e testes unitários (TDD), incluindo o exemplo das telas.
 3. Depois: `reports` usando `@pilotei/metrics`, com `CostSnapshot`, `Goal` e os consumidores dos eventos do `vehicle`.
+
+## Revisão de 03/10/2026 (montagem do `Pilotei-Backend`, branch `001-setup/estrutura`)
+- **Mudança no padrão do Nest 12** (CONFIRMADO ao gerar o projeto): o `nest new` agora traz **Vitest** em vez de Jest, **oxlint** em vez de ESLint, **ESM** (`"type": "module"`) e build com **rspack**. Aprovado seguir esse padrão.
+- **Versões fixadas:**
+  - NestJS 12.1, TypeScript 6.0 (a versão que o Nest CLI 12 usa);
+  - Prisma **7.10.0**, fixado, porque a tag `latest` do npm já aponta para a 8.0 RC;
+  - KafkaJS 2.2;
+  - imagens Postgres 17.6, Kafka 4.3.1 e Kafka UI (kafbat) 1.5.
+- **Prisma com vários schemas** (CONFIRMADO): funciona com um `prisma.config.ts` por serviço (`prisma generate --config apps/<serviço>/prisma.config.ts`) e com o `@prisma/adapter-pg` apontando para o schema do serviço.
+- **Desenvolvimento:** a infraestrutura (Postgres, Kafka e Kafka UI) roda no Compose, e os serviços rodam localmente (`pnpm start:dev <serviço>`). O `Dockerfile` gera a imagem de cada serviço para o deploy.
+- **Postgres** exposto em `localhost:5433`, porque a 5432 do WSL já está em uso.
+- **CI:** um workflow por app (`pilotei-app-<serviço>-ci.yml`) e por lib (`pilotei-lib-<lib>-ci.yml`).
 
 ## Consequências
 - Um único `package.json`: todos os serviços usam as mesmas versões de dependências. Isso simplifica as atualizações, mas uma atualização afeta todos os serviços ao mesmo tempo.

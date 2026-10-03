@@ -198,7 +198,7 @@ Link: https://claude.ai/artifact/8Ndkpkogppxa8YmM6LCXzM (privado; só abre na su
 
 ### Aprovado (decisão `docs/decisoes/0007-monorepo-backend-e-metricas.md`, 03/10/2026)
 - **Repositório próprio e privado:** `MarlosAraujo/Pilotei-Backend`. As decisões continuam neste repositório, em `docs/decisoes/`. Numeração de branches independente.
-- **Nest CLI em modo monorepo** (`apps/` e `libs/`, prefixo `@pilotei/`), pnpm, Node 24 LTS, TypeScript estrito, Prisma v7 (um schema e um client por serviço) e Jest.
+- **Nest CLI em modo monorepo** (`apps/` e `libs/`, prefixo `@pilotei/`), pnpm, Node 24 LTS, TypeScript 6 estrito, Prisma 7.10 (um schema e um client por serviço). Padrão do Nest 12: Vitest, oxlint, ESM e rspack (revisão de 03/10/2026).
 - **Libs:** `contracts`, `kafka` (outbox, idempotência, DLQ), `common` (config, health, dinheiro, datas) e `metrics` (fórmulas puras, sem banco, Kafka nem NestJS).
 - **Custo/km por componente** (combustível, manutenção e pneus, custos fixos), cada um com a sua base:
   - **estimado:** confiança baixa;
