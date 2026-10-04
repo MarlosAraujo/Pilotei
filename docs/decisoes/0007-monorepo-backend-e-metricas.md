@@ -130,6 +130,7 @@ Conferência com os números das telas: 402,60 − 200 × 0,98 = 206,60; 206,60 
   - consumo em **metros por litro** (12,5 km/l = `12500`), para as contas ficarem em inteiros;
   - faturamento por km em **centavos por km**.
 - **"Sem dado"** distingue o motivo: 0 km, 0 h ou dados insuficientes.
+- **Organização no GitHub (04/10/2026):** o repositório passou para `Pilotei/Pilotei-Backend`. Ver a `0008-react-native-e-leitor-pdf.md`.
 
 ## Consequências
 - Um único `package.json`: todos os serviços usam as mesmas versões de dependências. Isso simplifica as atualizações, mas uma atualização afeta todos os serviços ao mesmo tempo.

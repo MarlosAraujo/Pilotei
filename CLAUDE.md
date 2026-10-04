@@ -1,6 +1,6 @@
 # Pilotei — Contexto do projeto (handoff para o Claude Code)
 
-> Repositório: `https://github.com/MarlosAraujo/Pilotei.git`. Especificações em `docs/`, protótipo das telas em `design/`.
+> Repositório: `https://github.com/Pilotei/Pilotei.git` (organização `Pilotei` no GitHub, desde 04/10/2026, com `Pilotei-Backend` e `Pilotei-Driver`). Especificações em `docs/`, protótipo das telas em `design/`.
 > Origem: conversa de planejamento no Claude (Cowork), de 24 a 26/09/2026. O produto se chamava "Destival" e, nos primeiros protótipos, "DriverCost".
 
 ## Como trabalhar comigo
@@ -12,7 +12,7 @@
 - Ao citar Uber, Google Play, Android etc., separar **CONFIRMADO**, **PROPOSTA** e **PRECISA VALIDAR**. Não inventar APIs.
 
 ## O produto
-Dois apps Android (decisão `docs/decisoes/0002-stack-apps-e-backend.md`):
+Dois apps em React Native + Expo, só Android no MVP e iOS no pós-MVP (decisões `0002` e `0008`):
 - **Pilotei Driver:** app para motoristas de aplicativo (descrito abaixo), com gestão e Copiloto.
 - **Pilotei APP:** app do usuário final, que chama um motorista do Pilotei Driver para uma corrida. **Pós-MVP**, no serviço `trip`. O Pilotei ganha **R$ 1,00 por corrida realizada**.
 
@@ -91,7 +91,8 @@ Especificação completa em `docs/parser-uber-relatorio-semanal.md`. Resumo:
   - saldo inicial + ganhos = saldo final;
   - se alguma falhar, mostrar aviso e não importar em silêncio.
 - **Dados pessoais do PDF** (nome, telefone, e-mail): descartar.
-- **Android:** usar PdfBox-Android (`com.tom_roush:pdfbox-android`) com as posições do texto, separando colunas pela coordenada X. Testes "golden" com PDFs anonimizados.
+- **App (decisão 0008):** parser em TypeScript puro; extração com o pdf.js (`getTextContent()`), separando colunas pela coordenada X. PRECISA VALIDAR o pdf.js no Hermes; se falhar, só a extração vira módulo nativo com PdfBox-Android.
+- **Testes golden:** PDF sintético gerado por script, com o mesmo layout, no repositório; o PDF real fica fora do git, só para conferência local.
 
 ### Modelo de dados (plataformas)
 - `Platform`: UBER, NINETY_NINE, INDRIVE, PRIVATE, OTHER. 99Pop é categoria da 99, não plataforma.
@@ -161,9 +162,9 @@ Link: https://claude.ai/artifact/8Ndkpkogppxa8YmM6LCXzM (privado; só abre na su
 - **Backend em 11 domínios:** Identidade, Assinaturas, Veículos, Custos, Ganhos, Importação, Métricas, Relatórios, Config remota e flags, Notificações, Copiloto (MVP 2) e, no pós-MVP, o 12º: Corridas do Pilotei APP. Ver `docs/backend/dominios.md` e `docs/backend/glossario-entidades.md`.
 
 ### Aprovado (decisão `docs/decisoes/0002-stack-apps-e-backend.md`, 27/09/2026)
-- **Apps em Kotlin nativo** (Jetpack Compose): **Pilotei Driver** (motorista: gestão + Copiloto) e **Pilotei APP** (passageiro chama motorista).
+- ~~Apps em Kotlin nativo (Jetpack Compose)~~ → substituído pela 0008. Apps: **Pilotei Driver** (motorista: gestão + Copiloto) e **Pilotei APP** (passageiro chama motorista).
 - **Backend em NestJS (Node + TypeScript), em microservices.** Comparação em `docs/backend/comparacao-stack.md`.
-- **Desenvolvimento:** apps no Windows (Android Studio + emulador); backend no WSL2 (Ubuntu 24).
+- **Desenvolvimento:** backend no WSL2 (Ubuntu 24). Apps: ver 0008.
 
 ### Aprovado (decisão `docs/decisoes/0003-microservices-kafka.md`, 27/09/2026)
 - **Serviços:** `gateway` 7000 (BFF, autenticação), `core` 7100 (Identidade + Assinaturas), `vehicle` 7200 (Veículos, Custos, Ganhos, Importação), `reports` 7300 (Métricas + Relatórios), `notification` 7400 (Config remota + Notificações), `copilot` 7500 (MVP 2), `trip` 7600 (pós-MVP, corridas do Pilotei APP).
@@ -177,11 +178,11 @@ Link: https://claude.ai/artifact/8Ndkpkogppxa8YmM6LCXzM (privado; só abre na su
 - **Serviços em modo híbrido** (HTTP + Kafka); a porta HTTP serve para health check. Só o `gateway` atende os apps.
 - **Desenvolvimento:** Docker Compose no WSL, com Kafka em modo **KRaft**, Postgres e todos os serviços em containers.
 - **Hospedagem por containers**, sem amarrar a um provedor (Azure, AWS, Oracle Cloud, Hetzner…). Configuração por variáveis de ambiente.
-- **App:** Room só como cache de leitura. Assinatura pela Google Play Billing.
+- **App:** cache só de leitura (biblioteca definida na montagem do app, 0008). Assinatura pela Google Play Billing.
 - PRECISA VALIDAR: emulador → `http://10.0.2.2:7000` (Android Studio e emulador ainda serão instalados).
 
 ### Aprovado (decisão `docs/decisoes/0005-autenticacao.md`, 27/09/2026)
-- **Autenticação própria no `core`.** Login com Google (Credential Manager + `google-auth-library`) ou com **e-mail + OTP, sem senha**, com e-mails enviados pelo **Resend**. Sem senha, não há recuperação de senha.
+- **Autenticação própria no `core`.** Login com Google (token de ID obtido no app + `google-auth-library` no `core`) ou com **e-mail + OTP, sem senha**, com e-mails enviados pelo **Resend**. Sem senha, não há recuperação de senha.
 - **OTP:** 6 dígitos, 10 min, 5 tentativas, reenvio após 60 s. Google e OTP com o mesmo e-mail caem no mesmo `User`.
 - **Domínio de envio:** `pilotei.app.br` (verificar no Resend).
 - **Tokens:** access token JWT de 15 min (`sub = userId`), validado localmente pelo `gateway`; refresh token de 30 dias, trocado a cada uso, guardado como hash na `Session`.
@@ -197,7 +198,7 @@ Link: https://claude.ai/artifact/8Ndkpkogppxa8YmM6LCXzM (privado; só abre na su
 - **Backend em monorepo** com o pacote `@pilotei/contracts` (envelope, eventos e RPC). Local e ferramenta: decisão 0007.
 
 ### Aprovado (decisão `docs/decisoes/0007-monorepo-backend-e-metricas.md`, 03/10/2026)
-- **Repositório próprio e privado:** `MarlosAraujo/Pilotei-Backend`. As decisões continuam neste repositório, em `docs/decisoes/`. Numeração de branches independente.
+- **Repositório próprio e privado:** `Pilotei/Pilotei-Backend`. As decisões continuam neste repositório, em `docs/decisoes/`. Numeração de branches independente.
 - **Nest CLI em modo monorepo** (`apps/` e `libs/`, prefixo `@pilotei/`), pnpm, Node 24 LTS, TypeScript 6 estrito, Prisma 7.10 (um schema e um client por serviço). Padrão do Nest 12: Vitest, oxlint, ESM e rspack (revisão de 03/10/2026).
 - **Libs:** `contracts`, `kafka` (outbox, idempotência, DLQ), `common` (config, health, dinheiro, datas) e `metrics` (fórmulas puras, sem banco, Kafka nem NestJS).
 - **Custo/km por componente** (combustível, manutenção e pneus, custos fixos), cada um com a sua base:
@@ -212,8 +213,15 @@ Link: https://claude.ai/artifact/8Ndkpkogppxa8YmM6LCXzM (privado; só abre na su
 - **Precisão:** custo/km em centésimos de centavo por km. O arredondamento é simétrico (meio longe do zero), só no fim. Divisão por zero vira "sem dado".
 - **Horas online nos dias do PDF:** o motorista informa as horas (no dia ou depois, olhando o app Uber Driver). Sem as horas, o ganho real por hora fica "sem dado".
 
+### Aprovado (decisão `docs/decisoes/0008-react-native-e-leitor-pdf.md`, 04/10/2026)
+- **Apps em React Native + Expo**, em _development build_ (sem Expo Go), TypeScript estrito. Código nativo (Copiloto) em Kotlin, por Expo Modules e config plugins.
+- **Só Android no MVP; iOS no pós-MVP, sem o Copiloto** (assinatura pela App Store a decidir).
+- **Repositório privado `Pilotei/Pilotei-Driver`**, numeração de branches própria. Código no WSL; emulador no Windows ligado pelo `adb`. PRECISA VALIDAR: _development build_ local (Android SDK no WSL) ou EAS Build.
+- **Leitor do PDF primeiro**, no WSL, sem esperar o Android Studio: parser TypeScript + pdf.js, testes golden com PDF sintético.
+- PROPOSTA de bibliotecas (decidir na montagem do app): `expo-document-picker`, `expo-web-browser`, `@react-native-google-signin/google-signin`, `expo-iap`/`react-native-iap`, cache com TanStack Query persistido ou `expo-sqlite`.
+
 ### PROPOSTA, ainda não aprovada
-- **Módulos do app (a revisar com as decisões acima):** `core-model`, `core-network`, `import` (EarningsSource e leitor do PDF), `feature-*` (dashboard, financeiro, veículo, configurações, assinatura) e, no futuro, `copilot`. O antigo `engine` passa para o domínio de Métricas no backend.
+- **Módulos do app (a revisar com a 0008, agora em React Native):** `core-model`, `core-network`, `import` (EarningsSource e leitor do PDF), `feature-*` (dashboard, financeiro, veículo, configurações, assinatura) e, no futuro, `copilot`. O antigo `engine` passa para o domínio de Métricas no backend.
 - **PRECISA SER DEFINIDO:** provedor de hospedagem.
 
 ## Pendências
@@ -228,6 +236,8 @@ Link: https://claude.ai/artifact/8Ndkpkogppxa8YmM6LCXzM (privado; só abre na su
 9. Instalar Android Studio + emulador no Windows e validar o acesso a `http://10.0.2.2:7000`.
 10. Resend: verificar o domínio `pilotei.app.br` (DNS) e validar plano e limites.
 11. Canvas do protótipo no claude.ai: tirar o campo de senha de Criar conta e Entrar e incluir a tela Digitar código e os sliders de Custos fixos, Metas e Veículo, como já feito em `design/`.
+12. Criar a branch `develop` no `Pilotei/Pilotei-Driver` (o repositório já existe, só com `main`).
+13. Validar o pdf.js no Hermes e escolher entre _development build_ local e EAS Build (0008).
 
 ## Próximos passos
 1. ~~`001-setup/estrutura-inicial`: organizar `CLAUDE.md`, `docs/` e `design/` no repositório.~~
@@ -235,4 +245,5 @@ Link: https://claude.ai/artifact/8Ndkpkogppxa8YmM6LCXzM (privado; só abre na su
 3. ~~`003-setup-infra`: ambiente, autenticação e catálogo de tópicos Kafka (0004, 0005 e 0006).~~ Hospedagem fica para branch própria, perto do deploy.
 4. ~~`004-setup-monorepo-backend`: monorepo do backend e fórmulas de Métricas (0007).~~
 5. ~~No `Pilotei-Backend`: `001-setup/estrutura` (monorepo, libs base, 5 serviços com health check, Docker Compose, CI) e `002-metricas` (`libs/metrics` com TDD).~~ A `002-metricas` está no PR #2 do `Pilotei-Backend`; a revisão da 0007 está na branch `006-revisao-0007-confianca`.
-6. Em seguida: o leitor do PDF da Uber, com testes golden usando um PDF anonimizado.
+6. ~~`007-react-native-e-leitor-pdf`: troca para React Native + Expo e leitor do PDF (0008).~~
+7. No `Pilotei-Driver`: `001-...` com o projeto Expo e o leitor do PDF da Uber (parser TypeScript + pdf.js, testes golden com PDF sintético). Plano antes do código.

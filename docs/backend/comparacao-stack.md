@@ -1,7 +1,7 @@
 # Comparação de stack — apps e backend
 
 - **Atualizado em:** 27/09/2026
-- **Status:** decidido em `docs/decisoes/0002-stack-apps-e-backend.md` (apps em Kotlin; backend em NestJS com microservices)
+- **Status:** decidido em `docs/decisoes/0002-stack-apps-e-backend.md` (backend em NestJS com microservices). Os apps eram Kotlin e passaram para React Native + Expo em `docs/decisoes/0008-react-native-e-leitor-pdf.md` (04/10/2026).
 - Preços de memória (2025): PRECISAM SER VALIDADOS.
 
 ## 1. Apps: React Native + Expo × Kotlin nativo
@@ -26,7 +26,7 @@ As duas pedem a permissão `POST_NOTIFICATIONS` em tempo de execução no Androi
 - **React Native + Expo:** Metro roda bem no WSL, mas também precisa do `adb` ligado ao emulador (`adb reverse`). *Development build* local exige Android SDK no WSL, ou EAS Build na nuvem (cota no plano grátis).
 
 ### Resultado
-**Kotlin.** O diferencial do Pilotei (acessibilidade, sobreposição, OCR, leitor de PDF) é nativo; no React Native ele seria escrito em Kotlin mesmo, com a ponte a mais.
+**Kotlin** em 27/09/2026, trocado por **React Native + Expo** em 04/10/2026 (`0008`): uma linguagem só com o backend e iOS possível no pós-MVP. O Copiloto continua nativo, num Expo Module. Argumento original: o diferencial do Pilotei (acessibilidade, sobreposição, OCR, leitor de PDF) é nativo; no React Native ele seria escrito em Kotlin mesmo, com a ponte a mais.
 
 ## 2. Backend
 
