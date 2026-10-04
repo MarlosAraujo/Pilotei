@@ -202,11 +202,14 @@ Link: https://claude.ai/artifact/8Ndkpkogppxa8YmM6LCXzM (privado; só abre na su
 - **Libs:** `contracts`, `kafka` (outbox, idempotência, DLQ), `common` (config, health, dinheiro, datas) e `metrics` (fórmulas puras, sem banco, Kafka nem NestJS).
 - **Custo/km por componente** (combustível, manutenção e pneus, custos fixos), cada um com a sua base:
   - **estimado:** confiança baixa;
-  - **observado:** confiança média com ≥ 2 tanques cheios e ≥ 500 km reais; alta com ≥ 30 dias e ≥ 1.500 km reais e manutenção registrada;
+  - **observado**, com confiança por componente (revisão de 04/10/2026):
+    - combustível: média com ≥ 2 tanques cheios e ≥ 500 km reais; alta com ≥ 30 dias e ≥ 1.500 km;
+    - manutenção: só vira observada com ≥ 1 manutenção, ≥ 30 dias e ≥ 1.500 km (alta);
+    - custos fixos: média com ≥ 30 dias de odômetro; alta com ≥ 1.500 km;
   - **personalizado:** ajuste manual do motorista, mantendo o observado original visível.
 
   A confiança total é a menor entre as dos componentes. Os custos fixos são rateados pelo KM total, e a janela do observado é de 90 dias.
-- **Precisão:** custo/km em centésimos de centavo por km. O arredondamento é meio para cima, só no fim. Divisão por zero vira "sem dado".
+- **Precisão:** custo/km em centésimos de centavo por km. O arredondamento é simétrico (meio longe do zero), só no fim. Divisão por zero vira "sem dado".
 - **Horas online nos dias do PDF:** o motorista informa as horas (no dia ou depois, olhando o app Uber Driver). Sem as horas, o ganho real por hora fica "sem dado".
 
 ### PROPOSTA, ainda não aprovada
@@ -231,5 +234,5 @@ Link: https://claude.ai/artifact/8Ndkpkogppxa8YmM6LCXzM (privado; só abre na su
 2. ~~Definir, ponto a ponto, a stack do app e do backend (`002-setup-stack`), registrando as decisões em `docs/`.~~
 3. ~~`003-setup-infra`: ambiente, autenticação e catálogo de tópicos Kafka (0004, 0005 e 0006).~~ Hospedagem fica para branch própria, perto do deploy.
 4. ~~`004-setup-monorepo-backend`: monorepo do backend e fórmulas de Métricas (0007).~~
-5. No `Pilotei-Backend`: `001-setup/estrutura` (monorepo, libs base, 5 serviços com health check, Docker Compose, CI) e `002-metricas` (`libs/metrics` com TDD).
+5. ~~No `Pilotei-Backend`: `001-setup/estrutura` (monorepo, libs base, 5 serviços com health check, Docker Compose, CI) e `002-metricas` (`libs/metrics` com TDD).~~ A `002-metricas` está no PR #2 do `Pilotei-Backend`; a revisão da 0007 está na branch `006-revisao-0007-confianca`.
 6. Em seguida: o leitor do PDF da Uber, com testes golden usando um PDF anonimizado.

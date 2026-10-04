@@ -81,13 +81,14 @@ Conferência com os números das telas: 402,60 − 200 × 0,98 = 206,60; 206,60 
 | **Observado** | ≥ 30 dias e ≥ 1.500 km reais, com manutenção registrada | alta |
 | **Personalizado** | o motorista ajustou à mão algum componente | a do observado original, com a marca "ajustado por você" |
 
+- Os limites acima foram detalhados por componente na revisão de 04/10/2026, abaixo.
 - A confiança do custo/km é a **menor** entre as dos seus componentes.
 - **Personalizado = ajuste manual.** O motorista pode ajustar qualquer componente (ex.: troca de pneus prevista). O app mostra que o valor foi ajustado, e o observado original continua guardado e visível, para comparação. O ajuste pode ser desfeito a qualquer momento. Sazonalidade e padrão de uso ficam para o MVP 3 (Inteligência).
 - O `CostSnapshot` guarda os componentes, a base e a confiança de cada um, a janela usada e a data de vigência. O resultado de um dia usa o snapshot vigente naquele dia.
 
 #### 4.3 Precisão e arredondamento
 - Custo/km guardado em **centésimos de centavo por km** (inteiro; ex.: R$ 0,98/km = `9800`), para não perder precisão na multiplicação pelo KM.
-- Contas intermediárias em inteiros; arredondamento **meio para cima** só no resultado final em centavos.
+- Contas intermediárias em inteiros; arredondamento **simétrico** (o meio vai para longe do zero) só no resultado final em centavos. Ver a revisão de 04/10/2026 abaixo.
 - Divisão por zero (0 km ou 0 h): a métrica fica "sem dado", nunca zero ou infinito.
 
 #### 4.4 Horas online nos dias importados pelo PDF
@@ -112,6 +113,23 @@ Conferência com os números das telas: 402,60 − 200 × 0,98 = 206,60; 206,60 
 - **Desenvolvimento:** a infraestrutura (Postgres, Kafka e Kafka UI) roda no Compose, e os serviços rodam localmente (`pnpm start:dev <serviço>`). O `Dockerfile` gera a imagem de cada serviço para o deploy.
 - **Postgres** exposto em `localhost:5433`, porque a 5432 do WSL já está em uso.
 - **CI:** um workflow por app (`pilotei-app-<serviço>-ci.yml`) e por lib (`pilotei-lib-<lib>-ci.yml`).
+
+## Revisão de 04/10/2026 (implementação da `libs/metrics`, branch `002-metricas` do `Pilotei-Backend`)
+- **Confiança por componente.** A tabela da 4.2 passa a valer assim, componente a componente:
+
+  | Componente | Média | Alta |
+  |---|---|---|
+  | **Combustível** | ≥ 2 tanques cheios e ≥ 500 km reais | além disso, ≥ 30 dias e ≥ 1.500 km reais |
+  | **Manutenção e pneus** | não existe | ≥ 1 manutenção na janela, ≥ 30 dias e ≥ 1.500 km reais |
+  | **Custos fixos** | KM/mês observado com ≥ 30 dias de odômetro | além disso, ≥ 1.500 km reais |
+
+  - A manutenção só passa a observada quando atinge a confiança alta. Antes disso, continua estimada (confiança baixa).
+  - A confiança total continua sendo a menor entre os componentes.
+- **Arredondamento simétrico:** o meio vai para longe do zero, inclusive em valores negativos (27,545 → 27,55; −27,545 → −27,55). Substitui o "meio para cima" da 4.3, que arredondaria −27,545 para −27,54 e trataria prejuízo e lucro de forma diferente.
+- **Unidades complementares à seção 4:**
+  - consumo em **metros por litro** (12,5 km/l = `12500`), para as contas ficarem em inteiros;
+  - faturamento por km em **centavos por km**.
+- **"Sem dado"** distingue o motivo: 0 km, 0 h ou dados insuficientes.
 
 ## Consequências
 - Um único `package.json`: todos os serviços usam as mesmas versões de dependências. Isso simplifica as atualizações, mas uma atualização afeta todos os serviços ao mesmo tempo.
