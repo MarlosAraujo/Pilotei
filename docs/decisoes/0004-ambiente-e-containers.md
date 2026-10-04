@@ -12,13 +12,13 @@ A decisão `0003-microservices-kafka.md` deixou como PROPOSTA o modo híbrido do
 2. **Desenvolvimento no WSL com Docker Compose.** Kafka, Postgres e todos os microservices rodam em containers, orquestrados pelo Docker Compose, no Docker Engine instalado direto no WSL2 (Ubuntu 24).
 3. **Kafka em modo KRaft**, sem ZooKeeper.
 4. **Hospedagem por containers, sem amarrar a um provedor.** As mesmas imagens Docker do desenvolvimento são publicadas no provedor escolhido (exemplos: Azure, AWS, Oracle Cloud, Hetzner). A configuração muda por variáveis de ambiente, não por código.
-5. **App: Room só como cache de leitura** (o backend é a fonte da verdade, ver `0001-backend-fonte-da-verdade.md`). **Assinatura do Pilotei Driver pela Google Play Billing.**
+5. **App: Room só como cache de leitura** (com a `0008`, o cache continua só de leitura, mas a biblioteca passa a ser de React Native, escolhida na montagem do app) (o backend é a fonte da verdade, ver `0001-backend-fonte-da-verdade.md`). **Assinatura do Pilotei Driver pela Google Play Billing.**
 
 ## Consequências
 - Cada serviço precisa de um `Dockerfile` próprio e de configuração só por variáveis de ambiente (endereço do Kafka, URL do Postgres, porta), para rodar igual no WSL e na nuvem.
 - O health check HTTP serve tanto ao Docker Compose quanto ao orquestrador do provedor.
 - O Kafka gerenciado (por exemplo, Amazon MSK, Azure Event Hubs com API Kafka, Confluent Cloud) ou um Kafka próprio em container é escolha da hospedagem. PRECISA VALIDAR custo e compatibilidade de cada opção.
-- O Room não guarda lançamentos pendentes: sem internet, o app só consulta.
+- O cache não guarda lançamentos pendentes: sem internet, o app só consulta.
 
 ## Em aberto
 1. **Emulador → gateway (`http://10.0.2.2:7000`):** continua PRECISA VALIDAR. O Android Studio e o emulador ainda serão instalados no Windows para o teste.
