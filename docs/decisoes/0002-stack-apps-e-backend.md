@@ -1,7 +1,7 @@
 # 0002 — Stack dos apps e do backend
 
 - **Data:** 27/09/2026
-- **Status:** aprovada; itens 1 e 3 substituídos pela `0008-react-native-e-leitor-pdf.md` (04/10/2026)
+- **Status:** aprovada; itens 1 e 3 substituídos pela `0008-react-native-e-leitor-pdf.md` (04/10/2026); backend em microservices substituído pelo monólito modular da `0009-monorepo-unico-e-monolito-modular.md` (10/10/2026)
 - **Branch:** `002-setup-stack`
 
 ## Contexto

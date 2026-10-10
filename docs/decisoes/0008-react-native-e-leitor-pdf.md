@@ -1,7 +1,7 @@
 # 0008 — Apps em React Native + Expo e leitor do PDF da Uber
 
 - **Data:** 04/10/2026
-- **Status:** Aprovado (04/10/2026)
+- **Status:** Aprovado (04/10/2026); o repositório `Pilotei-Driver` passa a ser o monorepo único pela `0009-monorepo-unico-e-monolito-modular.md` (10/10/2026)
 - **Branch:** `007-react-native-e-leitor-pdf`
 
 ## Contexto

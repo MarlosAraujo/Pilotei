@@ -1,7 +1,7 @@
 # 0004 — Ambiente de desenvolvimento, containers e cache do app
 
 - **Data:** 27/09/2026
-- **Status:** aprovada (pontos em aberto listados abaixo)
+- **Status:** aprovada; Kafka e hospedagem alterados pela `0009-monorepo-unico-e-monolito-modular.md` (10/10/2026)
 - **Branch:** `003-setup-infra`
 
 ## Contexto

@@ -1,7 +1,7 @@
 # 0007 — Monorepo do backend e domínio de Métricas
 
 - **Data:** 03/10/2026
-- **Status:** Aprovado (03/10/2026)
+- **Status:** Aprovado (03/10/2026); repositório, libs e representação do dinheiro alterados pela `0009-monorepo-unico-e-monolito-modular.md` (10/10/2026)
 - **Branch:** `004-setup-monorepo-backend`
 
 ## Contexto

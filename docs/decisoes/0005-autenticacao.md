@@ -1,7 +1,7 @@
 # 0005 — Autenticação
 
 - **Data:** 27/09/2026
-- **Status:** aprovada (pontos em aberto listados abaixo)
+- **Status:** aprovada; o `core`, o `gateway` e os eventos viram o módulo `auth` do monólito pela `0009-monorepo-unico-e-monolito-modular.md` (10/10/2026)
 - **Branch:** `003-setup-infra`
 
 ## Contexto
