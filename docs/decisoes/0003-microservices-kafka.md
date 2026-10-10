@@ -1,7 +1,7 @@
 # 0003 — Microservices, Kafka e banco
 
 - **Data:** 27/09/2026
-- **Status:** aprovada (pontos em aberto listados abaixo)
+- **Status:** substituída pela `0009-monorepo-unico-e-monolito-modular.md` (10/10/2026)
 - **Branch:** `002-setup-stack`
 
 ## Contexto
@@ -32,7 +32,7 @@ A decisão `0002-stack-apps-e-backend.md` definiu o backend em NestJS com micros
 
 ### Ambiente de desenvolvimento
 - **Backend no WSL2** (Ubuntu 24): **Kafka, Postgres e todos os microservices rodam em Docker**, com **Docker Engine instalado direto no WSL** (sem Docker Desktop).
-- **Apps Kotlin no Windows**, com Android Studio e emulador.
+- ~~**Apps Kotlin no Windows**, com Android Studio e emulador.~~ Substituído pela `0008`: apps em React Native + Expo, código no WSL e emulador no Windows.
 - **Emulador → gateway:** o emulador chega ao `localhost` do Windows pelo endereço `10.0.2.2` (CONFIRMADO). O WSL2 encaminha as portas para o `localhost` do Windows por padrão (`localhostForwarding`, CONFIRMADO). O app usaria `http://10.0.2.2:7000`. PRECISA VALIDAR na máquina.
 
 ## Consequências

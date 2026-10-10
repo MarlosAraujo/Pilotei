@@ -1,6 +1,7 @@
 # Pilotei — Contexto do projeto (handoff para o Claude Code)
 
-> Repositório: `https://github.com/MarlosAraujo/Pilotei.git`. Especificações em `docs/`, protótipo das telas em `design/`.
+> Repositório: `https://github.com/Pilotei/Pilotei.git` (organização `Pilotei` no GitHub, desde 04/10/2026). Especificações em `docs/`, protótipo das telas em `design/`.
+> **Código:** monorepo único `Pilotei/Pilotei-Driver` (app + backend, decisão `0009`), guiado pelo `docs/prompt-mestre.md`. O `Pilotei-Backend` será arquivado depois da migração do `libs/metrics`.
 > Origem: conversa de planejamento no Claude (Cowork), de 24 a 26/09/2026. O produto se chamava "Destival" e, nos primeiros protótipos, "DriverCost".
 
 ## Como trabalhar comigo
@@ -12,9 +13,9 @@
 - Ao citar Uber, Google Play, Android etc., separar **CONFIRMADO**, **PROPOSTA** e **PRECISA VALIDAR**. Não inventar APIs.
 
 ## O produto
-Dois apps Android (decisão `docs/decisoes/0002-stack-apps-e-backend.md`):
+Dois apps em React Native + Expo, só Android no MVP e iOS no pós-MVP (decisões `0002` e `0008`):
 - **Pilotei Driver:** app para motoristas de aplicativo (descrito abaixo), com gestão e Copiloto.
-- **Pilotei APP:** app do usuário final, que chama um motorista do Pilotei Driver para uma corrida. **Pós-MVP**, no serviço `trip`. O Pilotei ganha **R$ 1,00 por corrida realizada**.
+- **Pilotei APP:** app do usuário final, que chama um motorista do Pilotei Driver para uma corrida. **Pós-MVP**, num módulo `trip` do backend. O Pilotei ganha **R$ 1,00 por corrida realizada**.
 
 O Pilotei Driver atende motoristas de aplicativo (Uber, 99, inDrive e corridas particulares). Ele junta:
 **gestão do veículo + custos reais + ganhos por plataforma + análise de ofertas + inteligência histórica.**
@@ -48,7 +49,7 @@ Não confundir nunca: receita ≠ lucro; R$/km ≠ lucro/km; oferta ≠ corrida;
 
 #### Assinatura do Pilotei Driver (Google Play Billing)
 - Só pago, com **7 dias de teste grátis** (apenas para quem nunca assinou).
-- **Mensal: R$ 10,99** (definido). **Anual: R$ 99,90** (sugestão, ainda a confirmar), equivalente a R$ 8,33/mês, 24% mais barato.
+- **Mensal: R$ 10,99. Anual: R$ 97,99** (definidos na 0009), equivalente a R$ 8,17/mês, cerca de 26% mais barato.
 - Um produto de assinatura com dois planos (mensal e anual), cada um com a oferta de teste. Os preços exibidos vêm da Play (`ProductDetails`), nunca fixos no código.
 - Assinatura expirada: consulta e exportação ficam liberadas; novos lançamentos exigem assinatura. A exclusão de conta fica no Perfil, como a Google Play exige.
 
@@ -79,9 +80,9 @@ Especificação completa em `docs/parser-uber-relatorio-semanal.md`. Resumo:
   - Linha 1: processado (data) | evento | seus ganhos | saldo
   - Linha 2: hora do processamento | data e hora do evento | saldo acumulado
 - **Mapeamento:**
-  - "Uber X" → `TripImport.category = "UberX"`
-  - "Prioridade" → `TripImport.category = "UberX Prioridade"`
-  - "Promoção - ..." → `Income(type=BONUS)`, não é corrida
+  - "Uber X" → `Ride.category = "UberX"`
+  - "Prioridade" → `Ride.category = "UberX Prioridade"`
+  - "Promoção - ..." → `Earning` do tipo bônus, não é corrida
   - linha de R$ 0,00 → ajuste, vinculado ao evento de mesma data e hora
 - **Tempos:** a data e hora do evento vira `started_at` (PRECISA VALIDAR se é o início ou o aceite). O processamento vira `finished_at`, aproximado.
 - **O PDF não traz:** KM, ID da viagem, origem, destino nem taxa da Uber.
@@ -91,17 +92,17 @@ Especificação completa em `docs/parser-uber-relatorio-semanal.md`. Resumo:
   - saldo inicial + ganhos = saldo final;
   - se alguma falhar, mostrar aviso e não importar em silêncio.
 - **Dados pessoais do PDF** (nome, telefone, e-mail): descartar.
-- **Android:** usar PdfBox-Android (`com.tom_roush:pdfbox-android`) com as posições do texto, separando colunas pela coordenada X. Testes "golden" com PDFs anonimizados.
+- **App (decisão 0008):** parser em TypeScript puro; extração com o pdf.js (`getTextContent()`), separando colunas pela coordenada X. PRECISA VALIDAR o pdf.js no Hermes; se falhar, só a extração vira módulo nativo com PdfBox-Android.
+- **Testes golden:** PDF sintético gerado por script, com o mesmo layout, no repositório; o PDF real fica fora do git, só para conferência local.
 
-### Modelo de dados (plataformas)
-- `Platform`: UBER, NINETY_NINE, INDRIVE, PRIVATE, OTHER. 99Pop é categoria da 99, não plataforma.
-- `TripImport`: platform, category, external_trip_id (ou hash), started_at, finished_at, duration_s, distance_m, gross_amount, net_amount, tips, platform_fee, status (concluída ou cancelada com taxa), source (FILE ou MANUAL), import_batch_id, metadata (JSON).
-- `Income` (BONUS): promoções e bônus.
-- `PlatformDaySummary`: dia lançado à mão (data, platform, net_amount, km, online_minutes, trips_count). Evita criar corridas inventadas.
-- `ImportBatch`: origem, hash do arquivo, período, contagens e erros. Permite desfazer uma importação.
-- `PlatformConnection`: platform, method, status, last_import_at, enabled.
-- Dinheiro sempre em **centavos (Long)**. Datas em UTC, exibidas no fuso America/Sao_Paulo.
-- O Dashboard soma TripImport, Income e PlatformDaySummary sem contar nada em dobro. O PDF semanal substitui os dias manuais da Uber.
+### Modelo de dados (decisão 0009, entidades do Prompt Mestre)
+- Entidades: `User`, `Driver` (perfil separado do usuário), `Vehicle`, `Ride`, `Earning`, `Expense`, `Goal`, `Subscription`, `License` (entitlements), `Notification`, `RefreshToken`. PROPOSTA: `OtpCode` e `ImportBatch`.
+- `Platform`: UBER, NINE_NINE, INDRIVE, PRIVATE, OTHER. 99Pop é categoria da 99, não plataforma.
+- `Ride`: driverId, vehicleId, platform, category, externalRideId (ou hash), startedAt, finishedAt, origin, destination, distanceKm, durationMinutes, grossAmount, platformFee, netAmount, tips, status, source (FILE ou MANUAL), importBatchId, metadata.
+- `Earning` (PROPOSTA de tipos): corrida, bônus/promoção e resumo diário manual ("Adicionar dia": data, plataforma, ganho, km, horas online, nº de corridas), que evita criar corridas inventadas.
+- `ImportBatch` (PROPOSTA): origem, hash do arquivo, período, contagens e erros. Permite desfazer uma importação.
+- Dinheiro em **`Decimal`** (precisão e arredondamento a definir em ADR). Datas em UTC, exibidas no fuso America/Sao_Paulo.
+- O Dashboard soma corridas, bônus e dias manuais sem contar nada em dobro. O PDF semanal substitui os dias manuais da Uber.
 
 ### Copiloto (MVP 2)
 - **Captura:** o AccessibilityService serve de gatilho e lê a árvore de elementos da tela. Se a árvore não trouxer os valores, usar `takeScreenshot()` (Android 11+) com OCR. MediaProjection fica como alternativa.
@@ -141,65 +142,62 @@ Link: https://claude.ai/artifact/8Ndkpkogppxa8YmM6LCXzM (privado; só abre na su
      - inDrive e Particulares: digitação manual.
    - **Importar relatório:** prévia antes de salvar, com semana, corridas, promoções, ajustes, duplicadas e o selo "Total conferido".
    - **Adicionar dia (manual)** e **Novo lançamento de custo:** combustível (preenche 2 de 3 campos, tanque cheio), KM inicial e final do dia, manutenção e despesa.
-   - **Menu inferior:** Início, Financeiro e Relatórios.
+   - **Navegação (decisão 0009):** Dashboard, Corridas, Ganhos, Despesas, Metas, Veículos, Análises, Configurações e Assinatura. O protótipo ainda usa o menu Início, Financeiro e Relatórios e precisa ser revisto.
 3. **Conta:**
    - **Configurações:**
      - Copiloto (liga/desliga);
      - seu custo estimado, custos fixos, valor mínimo por KM e por hora, metas;
      - veículo, voz, tema e backup.
    - **Perfil:** dados, status da assinatura, sair e excluir conta.
-   - **Assinatura:** estados teste, ativo, cancelado e expirado; Mensal R$ 10,99 selecionado; Anual R$ 99,90; gerenciar na Google Play; restaurar compra.
+   - **Assinatura:** estados teste, ativo, cancelado e expirado; Mensal R$ 10,99 selecionado; Anual R$ 97,99; gerenciar na Google Play; restaurar compra.
 4. **Detalhes:** Seu custo estimado (com confiança), Custos fixos, Metas e Veículo (uso pessoal sim/não).
 
 ## Arquitetura técnica
+
+### Aprovado (decisão `docs/decisoes/0009-monorepo-unico-e-monolito-modular.md`, 10/10/2026) — vigente
+- **Monorepo único `Pilotei/Pilotei-Driver`:** `apps/pilotei-driver` (React Native + Expo), `apps/pilotei-backend` (NestJS) e `packages/` (PROPOSTA: leitor do PDF e tipos compartilhados). Guia: `docs/prompt-mestre.md`.
+- **Backend em monólito modular NestJS**, sem microservices, Kafka nem Kubernetes. Módulos: auth, users, drivers, vehicles, rides, earnings, expenses, goals, imports, metrics, subscriptions, licenses, notifications. PostgreSQL + Prisma 7, REST `/api/v1` com Swagger.
+- **Hospedagem:** VPS Hetzner CPX22, proxy reverso com HTTPS, backend e PostgreSQL (privado) em Docker.
+- **Dinheiro em `Decimal`.** Entidades do Prompt Mestre (ver Modelo de dados).
+- **Decisões novas** viram ADRs no monorepo (`docs/architecture-decisions/`), com `AGENTS.md`. Este repositório guarda o histórico de 0001 a 0009.
+- **Substitui** a 0003 e a 0006; altera a 0002, 0004, 0005, 0007 e 0008 (tabela na 0009).
 
 ### Aprovado (decisão `docs/decisoes/0001-backend-fonte-da-verdade.md`, 26/09/2026)
 - **O backend é a fonte da verdade.** O app é cliente; o que guarda localmente é só cache de leitura.
 - **Internet obrigatória para lançar.** Sem sinal, o app só consulta os últimos dados carregados. Não há sincronização offline. Não é risco: os apps das plataformas também exigem internet.
 - **O PDF da Uber é lido no celular** e nunca sai do aparelho; o app envia ao backend só as corridas já lidas.
 - **As métricas (custo/km, resultados, ganho real por hora) são calculadas no servidor.**
-- **Backend em 11 domínios:** Identidade, Assinaturas, Veículos, Custos, Ganhos, Importação, Métricas, Relatórios, Config remota e flags, Notificações, Copiloto (MVP 2) e, no pós-MVP, o 12º: Corridas do Pilotei APP. Ver `docs/backend/dominios.md` e `docs/backend/glossario-entidades.md`.
+- **Domínios do backend:** ver `docs/backend/dominios.md` e `docs/backend/glossario-entidades.md` (escritos para os microservices; na 0009 viram módulos do monólito).
 
 ### Aprovado (decisão `docs/decisoes/0002-stack-apps-e-backend.md`, 27/09/2026)
-- **Apps em Kotlin nativo** (Jetpack Compose): **Pilotei Driver** (motorista: gestão + Copiloto) e **Pilotei APP** (passageiro chama motorista).
-- **Backend em NestJS (Node + TypeScript), em microservices.** Comparação em `docs/backend/comparacao-stack.md`.
-- **Desenvolvimento:** apps no Windows (Android Studio + emulador); backend no WSL2 (Ubuntu 24).
+- ~~Apps em Kotlin nativo (Jetpack Compose)~~ → substituído pela 0008. Apps: **Pilotei Driver** (motorista: gestão + Copiloto) e **Pilotei APP** (passageiro chama motorista).
+- **Backend em NestJS (Node + TypeScript)**; ~~em microservices~~ → monólito modular (0009). Comparação em `docs/backend/comparacao-stack.md`.
+- **Desenvolvimento:** no WSL2 (Ubuntu 24).
 
-### Aprovado (decisão `docs/decisoes/0003-microservices-kafka.md`, 27/09/2026)
-- **Serviços:** `gateway` 7000 (BFF, autenticação), `core` 7100 (Identidade + Assinaturas), `vehicle` 7200 (Veículos, Custos, Ganhos, Importação), `reports` 7300 (Métricas + Relatórios), `notification` 7400 (Config remota + Notificações), `copilot` 7500 (MVP 2), `trip` 7600 (pós-MVP, corridas do Pilotei APP).
-- **Kafka** entre os serviços; cada serviço publica e consome eventos. Os apps falam só com o `gateway`, em HTTP.
-- **PostgreSQL único, um schema por serviço.** Nenhum serviço consulta o schema de outro.
-- **Kafka, Postgres e todos os microservices rodam em Docker** (Docker Engine direto no WSL). Todos se conectam ao mesmo Kafka, em tópicos diferentes.
-- **ORM: Prisma v7.**
-- **Nomes:** `Trip` = corrida do Pilotei APP (serviço `trip`); `TripImport` = corrida de outra plataforma, importada ou lançada à mão.
+### ~~Decisão `0003-microservices-kafka.md`~~ — substituída pela 0009
+- ~~7 serviços (`gateway`, `core`, `vehicle`, `reports`, `notification`, `copilot`, `trip`), Kafka entre eles, um schema por serviço.~~
+- Continua: **PostgreSQL** e **Prisma 7**; tudo em Docker.
 
-### Aprovado (decisão `docs/decisoes/0004-ambiente-e-containers.md`, 27/09/2026)
-- **Serviços em modo híbrido** (HTTP + Kafka); a porta HTTP serve para health check. Só o `gateway` atende os apps.
-- **Desenvolvimento:** Docker Compose no WSL, com Kafka em modo **KRaft**, Postgres e todos os serviços em containers.
-- **Hospedagem por containers**, sem amarrar a um provedor (Azure, AWS, Oracle Cloud, Hetzner…). Configuração por variáveis de ambiente.
-- **App:** Room só como cache de leitura. Assinatura pela Google Play Billing.
-- PRECISA VALIDAR: emulador → `http://10.0.2.2:7000` (Android Studio e emulador ainda serão instalados).
+### Aprovado (decisão `docs/decisoes/0004-ambiente-e-containers.md`, 27/09/2026), alterada pela 0009
+- **Desenvolvimento:** Docker Compose no WSL com `pilotei-backend` e `postgres` (~~Kafka KRaft~~).
+- **Configuração por variáveis de ambiente.** Hospedagem: Hetzner CPX22 (0009).
+- **App:** cache só de leitura (biblioteca definida na montagem do app, 0008). Assinatura pela Google Play Billing.
+- PRECISA VALIDAR: acesso do emulador ao backend em `http://10.0.2.2:<porta>` (Android Studio e emulador ainda serão instalados).
 
-### Aprovado (decisão `docs/decisoes/0005-autenticacao.md`, 27/09/2026)
-- **Autenticação própria no `core`.** Login com Google (Credential Manager + `google-auth-library`) ou com **e-mail + OTP, sem senha**, com e-mails enviados pelo **Resend**. Sem senha, não há recuperação de senha.
+### Aprovado (decisão `docs/decisoes/0005-autenticacao.md`, 27/09/2026), adaptada pela 0009
+- **Autenticação própria no módulo `auth`.** Login com Google (token de ID obtido no app + `google-auth-library`) ou com **e-mail + OTP, sem senha**, com e-mails enviados pelo **Resend**. Sem senha, não há recuperação de senha.
 - **OTP:** 6 dígitos, 10 min, 5 tentativas, reenvio após 60 s. Google e OTP com o mesmo e-mail caem no mesmo `User`.
 - **Domínio de envio:** `pilotei.app.br` (verificar no Resend).
-- **Tokens:** access token JWT de 15 min (`sub = userId`), validado localmente pelo `gateway`; refresh token de 30 dias, trocado a cada uso, guardado como hash na `Session`.
-- **Eventos:** envelope `{ eventId, type, version, occurredAt, userId, correlationId, payload }`, com `userId` como chave de partição. Exclusão de conta publica `user.deleted`.
+- **Tokens:** access token JWT de 15 min (`sub = userId`); refresh token de 30 dias, trocado a cada uso, guardado como hash.
+- ~~Eventos Kafka (`user.deleted` etc.)~~: sem Kafka; a exclusão de conta é tratada dentro do monólito.
 - **Billing:** hash do `userId` em `obfuscatedAccountId`.
 - Passageiros do Pilotei APP: decidir no pós-MVP.
 
-### Aprovado (decisão `docs/decisoes/0006-catalogo-topicos-kafka.md`, 27/09/2026)
-- **Tópicos de evento:** `<serviço>.<assunto>.v<N>` (ex.: `vehicle.cost.v1`), um por assunto, tipo no campo `type`, chave `userId`, JSON sem dados pessoais.
-- **Pedido-resposta:** `<serviço>.rpc.<ação>` (ex.: `vehicle.rpc.fuel-entry.create`), resposta em `.reply`.
-- **Confiabilidade:** outbox na mesma transação, consumidores idempotentes por `eventId`, DLQ `<tópico>.dlq` após 3 tentativas. Tópicos criados por script.
-- **MVP 1:** `core.user.v1`, `core.subscription.v1`, `core.entitlement.v1` (compactado), `vehicle.vehicle.v1`, `vehicle.odometer.v1`, `vehicle.cost.v1`, `vehicle.earnings.v1`, `vehicle.import.v1`, `reports.cost-snapshot.v1`.
-- **Backend em monorepo** com o pacote `@pilotei/contracts` (envelope, eventos e RPC). Local e ferramenta: decisão 0007.
+### ~~Decisão `0006-catalogo-topicos-kafka.md`~~ — substituída pela 0009 (sem Kafka)
 
-### Aprovado (decisão `docs/decisoes/0007-monorepo-backend-e-metricas.md`, 03/10/2026)
-- **Repositório próprio e privado:** `MarlosAraujo/Pilotei-Backend`. As decisões continuam neste repositório, em `docs/decisoes/`. Numeração de branches independente.
-- **Nest CLI em modo monorepo** (`apps/` e `libs/`, prefixo `@pilotei/`), pnpm, Node 24 LTS, TypeScript 6 estrito, Prisma 7.10 (um schema e um client por serviço). Padrão do Nest 12: Vitest, oxlint, ESM e rspack (revisão de 03/10/2026).
-- **Libs:** `contracts`, `kafka` (outbox, idempotência, DLQ), `common` (config, health, dinheiro, datas) e `metrics` (fórmulas puras, sem banco, Kafka nem NestJS).
+### Aprovado (decisão `docs/decisoes/0007-monorepo-backend-e-metricas.md`, 03/10/2026), alterada pela 0009
+- ~~Repositório `Pilotei-Backend`, libs `contracts` e `kafka`~~ → monorepo `Pilotei-Driver` (0009). Ferramentas (pnpm, Vitest, oxlint etc.) a reconfirmar em ADR no monorepo.
+- **Fórmulas puras** de métricas (sem banco nem NestJS), migradas do `libs/metrics`.
 - **Custo/km por componente** (combustível, manutenção e pneus, custos fixos), cada um com a sua base:
   - **estimado:** confiança baixa;
   - **observado**, com confiança por componente (revisão de 04/10/2026):
@@ -209,30 +207,39 @@ Link: https://claude.ai/artifact/8Ndkpkogppxa8YmM6LCXzM (privado; só abre na su
   - **personalizado:** ajuste manual do motorista, mantendo o observado original visível.
 
   A confiança total é a menor entre as dos componentes. Os custos fixos são rateados pelo KM total, e a janela do observado é de 90 dias.
-- **Precisão:** custo/km em centésimos de centavo por km. O arredondamento é simétrico (meio longe do zero), só no fim. Divisão por zero vira "sem dado".
+- **Precisão:** ~~custo/km em centésimos de centavo~~ → `Decimal` (casas a definir, 0009). O arredondamento é simétrico (meio longe do zero), só no fim. Divisão por zero vira "sem dado".
 - **Horas online nos dias do PDF:** o motorista informa as horas (no dia ou depois, olhando o app Uber Driver). Sem as horas, o ganho real por hora fica "sem dado".
 
-### PROPOSTA, ainda não aprovada
-- **Módulos do app (a revisar com as decisões acima):** `core-model`, `core-network`, `import` (EarningsSource e leitor do PDF), `feature-*` (dashboard, financeiro, veículo, configurações, assinatura) e, no futuro, `copilot`. O antigo `engine` passa para o domínio de Métricas no backend.
-- **PRECISA SER DEFINIDO:** provedor de hospedagem.
+### Aprovado (decisão `docs/decisoes/0008-react-native-e-leitor-pdf.md`, 04/10/2026)
+- **Apps em React Native + Expo**, em _development build_ (sem Expo Go), TypeScript estrito. Código nativo (Copiloto) em Kotlin, por Expo Modules e config plugins.
+- **Só Android no MVP; iOS no pós-MVP, sem o Copiloto** (assinatura pela App Store a decidir).
+- **Repositório privado `Pilotei/Pilotei-Driver`**, agora monorepo com o backend (0009). Código no WSL; emulador no Windows ligado pelo `adb`. PRECISA VALIDAR: _development build_ local (Android SDK no WSL) ou EAS Build.
+- **Leitor do PDF:** parser TypeScript + pdf.js, testes golden com PDF sintético.
+- PROPOSTA de bibliotecas (decidir na montagem do app): `expo-document-picker`, `expo-web-browser`, `@react-native-google-signin/google-signin`, `expo-iap`/`react-native-iap`, cache com TanStack Query persistido ou `expo-sqlite`.
 
 ## Pendências
-1. Confirmar o preço do plano anual.
+1. ~~Confirmar o preço do plano anual.~~ R$ 97,99 (0009).
 2. Verificar a disponibilidade do nome Pilotei.
 3. Confirmar se o portal da Uber gera o relatório da semana ainda em andamento.
 4. Conseguir um PDF de exemplo da 99 (pós-MVP).
 5. Fazer o app de teste de acessibilidade antes do MVP 2.
 6. Revisar os Termos de Uso e a Política de Privacidade do Pilotei (LGPD), com o aviso de não afiliação.
 7. Pilotei APP (pós-MVP): gateway de pagamento, repasse ao motorista, campos da `Trip`, regulação e políticas da Google Play.
-8. Definir o provedor de hospedagem.
-9. Instalar Android Studio + emulador no Windows e validar o acesso a `http://10.0.2.2:7000`.
+8. ~~Definir o provedor de hospedagem.~~ Hetzner CPX22 (0009).
+9. Instalar Android Studio + emulador no Windows e validar o acesso do emulador ao backend (`10.0.2.2`).
 10. Resend: verificar o domínio `pilotei.app.br` (DNS) e validar plano e limites.
-11. Canvas do protótipo no claude.ai: tirar o campo de senha de Criar conta e Entrar e incluir a tela Digitar código e os sliders de Custos fixos, Metas e Veículo, como já feito em `design/`.
+11. Canvas do protótipo no claude.ai: tirar o campo de senha de Criar conta e Entrar e incluir a tela Digitar código e os sliders de Custos fixos, Metas e Veículo, como já feito em `design/`. Rever a navegação para as 9 seções (0009).
+12. ~~Criar a branch `develop` no `Pilotei/Pilotei-Driver`.~~
+13. Validar o pdf.js no Hermes e escolher entre _development build_ local e EAS Build (0008).
+14. Em aberto na 0009: precisão do `Decimal` e biblioteca decimal; gerenciador de pacotes e ferramentas do monorepo; menu inferior entre as 9 seções; limite de aparelhos por conta; licença `FREE`; onde roda a análise da oferta no Copiloto.
+15. Migrar o `libs/metrics` para o monorepo (adaptado para `Decimal`) e arquivar o `Pilotei-Backend`.
 
 ## Próximos passos
 1. ~~`001-setup/estrutura-inicial`: organizar `CLAUDE.md`, `docs/` e `design/` no repositório.~~
 2. ~~Definir, ponto a ponto, a stack do app e do backend (`002-setup-stack`), registrando as decisões em `docs/`.~~
-3. ~~`003-setup-infra`: ambiente, autenticação e catálogo de tópicos Kafka (0004, 0005 e 0006).~~ Hospedagem fica para branch própria, perto do deploy.
+3. ~~`003-setup-infra`: ambiente, autenticação e catálogo de tópicos Kafka (0004, 0005 e 0006).~~
 4. ~~`004-setup-monorepo-backend`: monorepo do backend e fórmulas de Métricas (0007).~~
-5. ~~No `Pilotei-Backend`: `001-setup/estrutura` (monorepo, libs base, 5 serviços com health check, Docker Compose, CI) e `002-metricas` (`libs/metrics` com TDD).~~ A `002-metricas` está no PR #2 do `Pilotei-Backend`; a revisão da 0007 está na branch `006-revisao-0007-confianca`.
-6. Em seguida: o leitor do PDF da Uber, com testes golden usando um PDF anonimizado.
+5. ~~No `Pilotei-Backend`: `001-setup/estrutura` e `002-metricas` (`libs/metrics` com TDD).~~
+6. ~~`007-react-native-e-leitor-pdf`: troca para React Native + Expo e leitor do PDF (0008).~~
+7. ~~`008-readme-prompt-mestre`: Prompt Mestre revisado, monorepo único e monólito modular (0009).~~
+8. No `Pilotei-Driver`: FASE 0 do Prompt Mestre (`AGENTS.md`, `docs/architecture.md`, `docs/roadmap.md` e ADRs iniciais). Plano antes do código.

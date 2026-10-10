@@ -37,11 +37,12 @@ Origem: drivers.uber.com › Ganhos › Relatórios semanais › baixar PDF. Val
 - 32 corridas (UberX e Prioridade), 1 promoção de R$ 75,00 e 1 ajuste de R$ 0,00.
 - O detalhamento separa R$ 28,95 de Uber Pro, mas esse valor não aparece como linha própria nas transações: está embutido nos valores das corridas.
 
-## Implementação Android
-- Extrair o texto com posição com PdfBox-Android (com.tom_roush:pdfbox-android). O PdfRenderer nativo só gera imagem, o que exigiria OCR.
+## Implementação (React Native, decisão 0008)
+- Parser em TypeScript puro: recebe os textos com posição (X, Y e página) e devolve transações, resumo e validações. Roda e é testado no Node.
+- Extrair o texto com posição com o pdf.js (`pdfjs-dist`, `getTextContent()`). PRECISA VALIDAR se roda no Hermes; se não rodar, a extração vira um módulo nativo com PdfBox-Android (com.tom_roush:pdfbox-android), e o parser não muda. O PdfRenderer nativo só gera imagem, o que exigiria OCR.
 - Separar colunas pela coordenada X, sem depender de espaços.
 - Parser por versão de layout: detectar pelos títulos ("Relatório semanal", "Transações", "Processado", "Evento"). Se o layout for desconhecido, falhar de forma explícita e oferecer a digitação manual.
-- Guardar PDFs de exemplo anonimizados como fixtures de teste (golden tests).
+- Testes golden com um PDF sintético, gerado por script com o mesmo layout, guardado no repositório. O PDF real fica fora do git, só para conferência local.
 
 ## Limitações
 - É semanal: não serve para o fechamento do dia. PRECISA VALIDAR se o portal gera o relatório da semana em andamento.

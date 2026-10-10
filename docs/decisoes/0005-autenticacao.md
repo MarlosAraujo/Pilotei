@@ -1,7 +1,7 @@
 # 0005 — Autenticação
 
 - **Data:** 27/09/2026
-- **Status:** aprovada (pontos em aberto listados abaixo)
+- **Status:** aprovada; o `core`, o `gateway` e os eventos viram o módulo `auth` do monólito pela `0009-monorepo-unico-e-monolito-modular.md` (10/10/2026)
 - **Branch:** `003-setup-infra`
 
 ## Contexto
@@ -10,7 +10,7 @@ A autenticação define como o `userId` circula do `gateway` para os serviços e
 ## Decisão
 
 ### Implementação própria, no serviço `core`
-1. **Login com Google:** o app obtém o token de ID do Google pelo Credential Manager do Android (CONFIRMADO) e o envia ao `core`, que o valida com `google-auth-library` (CONFIRMADO).
+1. **Login com Google:** o app obtém o token de ID do Google pelo Credential Manager do Android (CONFIRMADO; com a `0008`, por uma biblioteca React Native, ver a revisão abaixo) e o envia ao `core`, que o valida com `google-auth-library` (CONFIRMADO).
 2. **Login com e-mail e OTP, sem senha:** o motorista informa o e-mail e recebe um código de uso único, enviado pelo **Resend**. Não há senha, e por isso não há recuperação de senha: esqueceu, pede outro código.
 3. **E-mail verificado antes do primeiro lançamento:** atendido pelos dois métodos. O login por OTP comprova o e-mail; no Google, o token traz o e-mail verificado.
 
@@ -44,6 +44,9 @@ A autenticação define como o `userId` circula do `gateway` para os serviços e
 
 ## Em aberto
 1. **Passageiros do Pilotei APP:** mesma tabela `User` com papel ou cadastro separado. Decidir no pós-MVP.
+
+## Revisão de 04/10/2026
+- Com os apps em React Native (`0008-react-native-e-leitor-pdf.md`), o token de ID do Google e a compra pela Google Play passam por bibliotecas React Native. PROPOSTA: `@react-native-google-signin/google-signin` e `expo-iap` ou `react-native-iap`. PRECISA VALIDAR o uso do Credential Manager e o suporte a `obfuscatedAccountId`. O `core`, os tokens e os eventos não mudam.
 
 ## Referências
 - Ambiente e containers: `docs/decisoes/0004-ambiente-e-containers.md`
